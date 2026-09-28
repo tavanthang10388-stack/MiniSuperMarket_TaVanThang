@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -216,7 +216,7 @@ namespace MiniSupermarket.WinForms
             // lblApiUrl
             lblApiUrl.Name = "lblApiUrl";
             lblApiUrl.Size = new Size(130, 17);
-            lblApiUrl.Text = " | API: localhost:7080";
+            lblApiUrl.Text = " | API: localhost:5000";
             // FormCategoryManagement
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
