@@ -35,7 +35,19 @@ namespace MiniSupermarket.WinForms
         {
             if (!string.IsNullOrEmpty(SessionManager.CurrentRole))
             {
-                lblReady.Text = $"Sẵn sàng | Quyền: {SessionManager.CurrentRole}";
+                lblReady.Text = $"Sẵn sàng | Quyền: {SessionManager.CurrentRole} | API: localhost:5000";
+
+                // Phân quyền: Thu ngân (Cashier) không được phép xóa nhóm hàng
+                if (SessionManager.CurrentRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase))
+                {
+                    btnDelete.Enabled = false;
+                    btnDelete.Text = "Xóa (Khóa)";
+                }
+                else
+                {
+                    btnDelete.Enabled = true;
+                    btnDelete.Text = "Xóa";
+                }
             }
             await LoadDataAsync();
         }
@@ -180,6 +192,12 @@ namespace MiniSupermarket.WinForms
 
         private async void btnDelete_Click(object sender, EventArgs e)
         {
+            if (SessionManager.CurrentRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Tài khoản Thu ngân (Cashier) không có quyền xóa nhóm hàng! Chức năng này chỉ dành cho Quản trị viên (Admin).", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (string.IsNullOrEmpty(txtId.Text))
             {
                 MessageBox.Show("Vui lòng chọn nhóm hàng cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -251,6 +269,18 @@ namespace MiniSupermarket.WinForms
             {
                 MessageBox.Show("Lỗi kết nối: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnOpenRoles_Click(object sender, EventArgs e)
+        {
+            FormRoleManagement formRole = new FormRoleManagement();
+            formRole.ShowDialog();
+        }
+
+        private void btnOpenCustomers_Click(object sender, EventArgs e)
+        {
+            FormCustomerManagement formCustomer = new FormCustomerManagement();
+            formCustomer.ShowDialog();
         }
 
         private void ClearInputs()
