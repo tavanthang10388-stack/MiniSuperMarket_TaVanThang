@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -17,6 +17,8 @@ namespace MiniSupermarket.WinForms
         private void InitializeComponent()
         {
             grpSearch = new GroupBox();
+            btnOpenCustomers = new Button();
+            btnOpenRoles = new Button();
             btnLoad = new Button();
             btnSearch = new Button();
             txtKeyword = new TextBox();
@@ -44,7 +46,11 @@ namespace MiniSupermarket.WinForms
             grpInfo.SuspendLayout();
             statusStrip1.SuspendLayout();
             SuspendLayout();
+            // 
             // grpSearch
+            // 
+            grpSearch.Controls.Add(btnOpenCustomers);
+            grpSearch.Controls.Add(btnOpenRoles);
             grpSearch.Controls.Add(btnLoad);
             grpSearch.Controls.Add(btnSearch);
             grpSearch.Controls.Add(txtKeyword);
@@ -53,29 +59,60 @@ namespace MiniSupermarket.WinForms
             grpSearch.Size = new Size(475, 65);
             grpSearch.TabIndex = 0;
             grpSearch.TabStop = false;
-            grpSearch.Text = "Tìm kiếm";
+            grpSearch.Text = "Tìm kiếm & Phân hệ";
+            // 
+            // btnOpenCustomers
+            // 
+            btnOpenCustomers.BackColor = SystemColors.ControlLight;
+            btnOpenCustomers.Font = new System.Drawing.Font("Segoe UI", 9F, FontStyle.Bold);
+            btnOpenCustomers.Location = new Point(377, 22);
+            btnOpenCustomers.Name = "btnOpenCustomers";
+            btnOpenCustomers.Size = new Size(90, 28);
+            btnOpenCustomers.TabIndex = 4;
+            btnOpenCustomers.Text = "QL Khách";
+            btnOpenCustomers.UseVisualStyleBackColor = false;
+            btnOpenCustomers.Click += btnOpenCustomers_Click;
+            // 
+            // btnOpenRoles
+            // 
+            btnOpenRoles.BackColor = SystemColors.ControlLight;
+            btnOpenRoles.Font = new System.Drawing.Font("Segoe UI", 9F, FontStyle.Bold);
+            btnOpenRoles.Location = new Point(292, 22);
+            btnOpenRoles.Name = "btnOpenRoles";
+            btnOpenRoles.Size = new Size(80, 28);
+            btnOpenRoles.TabIndex = 3;
+            btnOpenRoles.Text = "QL Vai trò";
+            btnOpenRoles.UseVisualStyleBackColor = false;
+            btnOpenRoles.Click += btnOpenRoles_Click;
+            // 
             // btnLoad
-            btnLoad.Location = new Point(377, 22);
+            // 
+            btnLoad.Location = new Point(227, 22);
             btnLoad.Name = "btnLoad";
-            btnLoad.Size = new Size(85, 28);
+            btnLoad.Size = new Size(60, 28);
             btnLoad.TabIndex = 2;
             btnLoad.Text = "Tải lại";
             btnLoad.UseVisualStyleBackColor = true;
             btnLoad.Click += btnLoad_Click;
+            // 
             // btnSearch
-            btnSearch.Location = new Point(286, 22);
+            // 
+            btnSearch.Location = new Point(162, 22);
             btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(85, 28);
+            btnSearch.Size = new Size(60, 28);
             btnSearch.TabIndex = 1;
-            btnSearch.Text = "Tìm kiếm";
+            btnSearch.Text = "Tìm";
             btnSearch.UseVisualStyleBackColor = true;
             btnSearch.Click += btnSearch_Click;
+            // 
             // txtKeyword
+            // 
             txtKeyword.Font = new System.Drawing.Font("Segoe UI", 9.75F);
-            txtKeyword.Location = new Point(12, 24);
+            txtKeyword.Location = new Point(10, 24);
             txtKeyword.Name = "txtKeyword";
-            txtKeyword.PlaceholderText = "Nhập từ khóa...";
-            txtKeyword.Size = new Size(268, 25);
+            txtKeyword.PlaceholderText = "Từ khóa...";
+            txtKeyword.Size = new Size(147, 25);
+            txtKeyword.TabIndex = 0;
             txtKeyword.TabIndex = 0;
             // grpList
             grpList.Controls.Add(dgvCategories);
@@ -216,7 +253,7 @@ namespace MiniSupermarket.WinForms
             // lblApiUrl
             lblApiUrl.Name = "lblApiUrl";
             lblApiUrl.Size = new Size(130, 17);
-            lblApiUrl.Text = " | API: localhost:7080";
+            lblApiUrl.Text = " | API: localhost:5000";
             // FormCategoryManagement
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -244,6 +281,8 @@ namespace MiniSupermarket.WinForms
         }
         #endregion
         private GroupBox grpSearch;
+        private Button btnOpenCustomers;
+        private Button btnOpenRoles;
         private Button btnLoad;
         private Button btnSearch;
         private TextBox txtKeyword;
