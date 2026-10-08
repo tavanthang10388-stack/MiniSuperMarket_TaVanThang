@@ -8,12 +8,6 @@ namespace MiniSupermarket.WinForms
 {
     public partial class FormLogin : Form
     {
-        // Khởi tạo HttpClient trỏ đến địa chỉ của Web API Backend
-        private static readonly HttpClient _client = new HttpClient
-        {
-            BaseAddress = new Uri("http://localhost:5000/api/")
-        };
-
         public FormLogin()
         {
             InitializeComponent();
@@ -39,29 +33,44 @@ namespace MiniSupermarket.WinForms
 
                 // Đóng gói dữ liệu gửi lên endpoint POST /api/auth/login
                 var loginData = new { Username = username, Password = password };
-                var response = await _client.PostAsJsonAsync("auth/login", loginData);
+                var response = await ApiClientService.Client.PostAsJsonAsync("auth/login", loginData);
 
                 if (response.IsSuccessStatusCode)
                 {
                     // Đọc chuỗi JSON trả về từ Server khi đăng nhập thành công
                     var jsonString = await response.Content.ReadAsStringAsync();
                     using var doc = JsonDocument.Parse(jsonString);
+                    var root = doc.RootElement;
 
-                    // Trích xuất Token và Role lưu vào lớp tĩnh SessionManager dùng chung toàn ứng dụng
-                    SessionManager.JwtToken = doc.RootElement.GetProperty("token").GetString() ?? string.Empty;
-                    SessionManager.CurrentRole = doc.RootElement.GetProperty("role").GetString() ?? string.Empty;
+                    // Trích xuất Token, Role và thông tin User lưu vào SessionManager
+                    SessionManager.JwtToken = root.GetProperty("token").GetString() ?? string.Empty;
+                    SessionManager.CurrentRole = root.GetProperty("role").GetString() ?? string.Empty;
+                    SessionManager.CurrentUsername = root.TryGetProperty("username", out var uElem) ? uElem.GetString() ?? username : username;
+                    SessionManager.CurrentFullName = root.TryGetProperty("fullName", out var fnElem) ? fnElem.GetString() ?? username : username;
 
-                    MessageBox.Show($"Đăng nhập thành công với quyền: {SessionManager.CurrentRole}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Đăng nhập thành công!\nNhân viên: {SessionManager.CurrentFullName}\nVai trò: {SessionManager.CurrentRole}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Mở Form quản lý chính (FormCategoryManagement) và ẩn Form đăng nhập đi
-                    FormCategoryManagement mainForm = new FormCategoryManagement();
+                    // Mở Form điều khiển trung tâm (FormMainShell) và ẩn Form đăng nhập đi
+                    FormMainShell shellForm = new FormMainShell();
                     this.Hide();
-                    mainForm.ShowDialog();
-                    this.Close(); // Đóng hẳn ứng dụng khi form chính tắt
+                    shellForm.ShowDialog();
+                    this.Close(); // Đóng hẳn ứng dụng khi shell chính tắt
                 }
                 else
                 {
-                    MessageBox.Show("Sai tài khoản hoặc mật khẩu!", "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var errorJson = await response.Content.ReadAsStringAsync();
+                    string errorMsg = "Sai tài khoản hoặc mật khẩu!";
+                    try
+                    {
+                        using var errDoc = JsonDocument.Parse(errorJson);
+                        if (errDoc.RootElement.TryGetProperty("message", out var msgProp))
+                        {
+                            errorMsg = msgProp.GetString() ?? errorMsg;
+                        }
+                    }
+                    catch { }
+
+                    MessageBox.Show(errorMsg, "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)

@@ -35,6 +35,23 @@ namespace MiniSupermarket.API.Controllers
             return Ok(customer);
         }
 
+        [HttpGet("by-phone/{phone}")]
+        public async Task<IActionResult> GetByPhone(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return BadRequest(new { message = "Số điện thoại không hợp lệ!" });
+            }
+
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.PhoneNumber == phone.Trim());
+            if (customer == null)
+            {
+                return NotFound(new { message = "Không tìm thấy khách hàng!" });
+            }
+
+            return Ok(customer);
+        }
+
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string keyword)
         {

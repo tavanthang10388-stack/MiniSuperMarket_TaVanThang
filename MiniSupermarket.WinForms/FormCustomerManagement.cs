@@ -13,6 +13,7 @@ namespace MiniSupermarket.WinForms
         public FormCustomerManagement()
         {
             InitializeComponent();
+            dgvCustomers.AutoGenerateColumns = false;
         }
 
         private HttpClient GetAuthenticatedClient()
@@ -87,6 +88,12 @@ namespace MiniSupermarket.WinForms
 
         private async void btnAdd_Click(object sender, EventArgs e)
         {
+            if (SessionManager.CurrentRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Nhân viên Thu ngân không có quyền thêm mới khách hàng! Vui lòng liên hệ Admin.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             string name = txtCustomerName.Text.Trim();
             string phone = txtPhoneNumber.Text.Trim();
 
@@ -140,6 +147,12 @@ namespace MiniSupermarket.WinForms
 
         private async void btnUpdate_Click(object sender, EventArgs e)
         {
+            if (SessionManager.CurrentRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Nhân viên Thu ngân không có quyền chỉnh sửa thông tin khách hàng! Vui lòng liên hệ Admin.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (string.IsNullOrEmpty(txtCustomerId.Text))
             {
                 MessageBox.Show("Vui lòng chọn khách hàng từ danh sách để cập nhật!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -198,6 +211,12 @@ namespace MiniSupermarket.WinForms
 
         private async void btnDelete_Click(object sender, EventArgs e)
         {
+            if (SessionManager.CurrentRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Nhân viên Thu ngân không có quyền xóa dữ liệu khách hàng!", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (string.IsNullOrEmpty(txtCustomerId.Text))
             {
                 MessageBox.Show("Vui lòng chọn khách hàng cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);

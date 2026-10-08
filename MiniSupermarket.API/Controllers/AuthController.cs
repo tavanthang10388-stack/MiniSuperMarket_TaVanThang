@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MiniSupermarket.API.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,16 +18,30 @@ namespace MiniSupermarket.API.Controllers {
         // Endpoint Đăng nhập: POST /api/auth/login
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequestDto request) {
-            // Kiểm tra tài khoản mẫu (Trong thực tế sẽ truy vấn qua EF Core / SQL Server)
-            if (request.Username == "admin" && request.Password == "123456") {
-                var token = GenerateJwtToken(request.Username, "Admin");
-                return Ok(new { success = true, token = token, role = "Admin" });
-            } else if (request.Username == "cashier" && request.Password == "123456") {
-                var token = GenerateJwtToken(request.Username, "Cashier");
-                return Ok(new { success = true, token = token, role = "Cashier" });
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password)) {
+                return BadRequest(new { success = false, message = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!" });
             }
 
-            return Unauthorized(new { success = false, message = "Sai tài khoản hoặc mật khẩu!" });
+            var user = UserStore.Users.FirstOrDefault(u => 
+                u.Username.Equals(request.Username.Trim(), StringComparison.OrdinalIgnoreCase) && 
+                u.Password == request.Password.Trim());
+
+            if (user == null) {
+                return Unauthorized(new { success = false, message = "Sai tài khoản hoặc mật khẩu!" });
+            }
+
+            if (!user.IsActive) {
+                return Unauthorized(new { success = false, message = "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ Admin." });
+            }
+
+            var token = GenerateJwtToken(user.Username, user.Role);
+            return Ok(new { 
+                success = true, 
+                token = token, 
+                role = user.Role,
+                username = user.Username,
+                fullName = user.FullName
+            });
         }
 
         private string GenerateJwtToken(string username, string role) {
@@ -38,7 +53,7 @@ namespace MiniSupermarket.API.Controllers {
                     new Claim(ClaimTypes.Name, username),
                     new Claim(ClaimTypes.Role, role)
                 }),
-                Expires = DateTime.UtcNow.AddHours(2), // Thời hạn token là 2 tiếng
+                Expires = DateTime.UtcNow.AddHours(4),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
