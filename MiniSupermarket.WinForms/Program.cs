@@ -11,7 +11,7 @@ namespace MiniSupermarket.WinForms
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            // Thay đổi Form khởi chạy đầu tiên là FormLogin thay vì FormCategoryManagement
+            // Khởi chạy ứng dụng từ màn hình đăng nhập FormLogin
             Application.Run(new FormLogin());
         }
     }
