@@ -63,6 +63,7 @@ namespace MiniSupermarket.WinForms
                 {
                     var categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
                     dgvCategories.DataSource = categories;
+                    lblCategoryCount.Text = $"Tổng số: {categories?.Count ?? 0} danh mục";
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -85,7 +86,18 @@ namespace MiniSupermarket.WinForms
 
         private async void btnLoad_Click(object sender, EventArgs e)
         {
+            txtKeyword.Clear();
             await LoadDataAsync();
+            ClearInputs();
+        }
+
+        private void txtKeyword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                btnSearch_Click(sender, EventArgs.Empty);
+            }
         }
 
         private void dgvCategories_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -255,6 +267,7 @@ namespace MiniSupermarket.WinForms
                 {
                     var result = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
                     dgvCategories.DataSource = result;
+                    lblCategoryCount.Text = $"Tổng số: {result?.Count ?? 0} danh mục";
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -283,11 +296,17 @@ namespace MiniSupermarket.WinForms
             formCustomer.ShowDialog();
         }
 
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearInputs();
+        }
+
         private void ClearInputs()
         {
             txtId.Text = "";
             txtCategoryName.Text = "";
             txtDescription.Text = "";
+            txtCategoryName.Focus();
         }
     }
 

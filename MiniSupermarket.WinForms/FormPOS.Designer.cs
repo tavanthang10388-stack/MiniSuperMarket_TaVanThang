@@ -99,6 +99,7 @@ namespace MiniSupermarket.WinForms
             dgvCart.Name = "dgvCart";
             dgvCart.ReadOnly = true;
             dgvCart.RowHeadersVisible = false;
+            dgvCart.RowHeadersWidth = 51;
             dgvCart.RowTemplate.Height = 32;
             dgvCart.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvCart.Size = new Size(654, 515);
@@ -169,7 +170,7 @@ namespace MiniSupermarket.WinForms
             lblBarcodeHint.ForeColor = Color.Gray;
             lblBarcodeHint.Location = new Point(480, 26);
             lblBarcodeHint.Name = "lblBarcodeHint";
-            lblBarcodeHint.Size = new Size(155, 13);
+            lblBarcodeHint.Size = new Size(203, 19);
             lblBarcodeHint.TabIndex = 2;
             lblBarcodeHint.Text = "(Quét hoặc gõ mã rồi ấn Enter)";
             // 
@@ -180,7 +181,7 @@ namespace MiniSupermarket.WinForms
             txtBarcode.Location = new Point(165, 17);
             txtBarcode.Name = "txtBarcode";
             txtBarcode.PlaceholderText = "Nhập mã vạch Barcode (Ví dụ: 893500123001)...";
-            txtBarcode.Size = new Size(305, 29);
+            txtBarcode.Size = new Size(305, 34);
             txtBarcode.TabIndex = 1;
             txtBarcode.KeyDown += txtBarcode_KeyDown;
             // 
@@ -191,7 +192,7 @@ namespace MiniSupermarket.WinForms
             lblBarcode.ForeColor = Color.FromArgb(24, 30, 48);
             lblBarcode.Location = new Point(10, 21);
             lblBarcode.Name = "lblBarcode";
-            lblBarcode.Size = new Size(151, 19);
+            lblBarcode.Size = new Size(198, 25);
             lblBarcode.TabIndex = 0;
             lblBarcode.Text = "Quét mã SP (Barcode):";
             // 
@@ -237,7 +238,7 @@ namespace MiniSupermarket.WinForms
             lblChange.Dock = DockStyle.Top;
             lblChange.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             lblChange.ForeColor = Color.FromArgb(40, 167, 69);
-            lblChange.Location = new Point(15, 417);
+            lblChange.Location = new Point(15, 434);
             lblChange.Name = "lblChange";
             lblChange.Size = new Size(324, 35);
             lblChange.TabIndex = 7;
@@ -250,10 +251,10 @@ namespace MiniSupermarket.WinForms
             lblChangeTitle.Dock = DockStyle.Top;
             lblChangeTitle.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
             lblChangeTitle.ForeColor = Color.FromArgb(100, 110, 125);
-            lblChangeTitle.Location = new Point(15, 395);
+            lblChangeTitle.Location = new Point(15, 408);
             lblChangeTitle.Name = "lblChangeTitle";
             lblChangeTitle.Padding = new Padding(0, 5, 0, 0);
-            lblChangeTitle.Size = new Size(123, 22);
+            lblChangeTitle.Size = new Size(152, 26);
             lblChangeTitle.TabIndex = 6;
             lblChangeTitle.Text = "Tiền thừa trả khách:";
             // 
@@ -261,10 +262,10 @@ namespace MiniSupermarket.WinForms
             // 
             txtCashReceived.Dock = DockStyle.Top;
             txtCashReceived.Font = new Font("Segoe UI Semibold", 13F, FontStyle.Bold);
-            txtCashReceived.Location = new Point(15, 364);
+            txtCashReceived.Location = new Point(15, 372);
             txtCashReceived.Name = "txtCashReceived";
             txtCashReceived.PlaceholderText = "Nhập số tiền khách đưa...";
-            txtCashReceived.Size = new Size(324, 31);
+            txtCashReceived.Size = new Size(324, 36);
             txtCashReceived.TabIndex = 5;
             txtCashReceived.TextAlign = HorizontalAlignment.Right;
             txtCashReceived.TextChanged += txtCashReceived_TextChanged;
@@ -275,10 +276,10 @@ namespace MiniSupermarket.WinForms
             lblCashReceivedTitle.Dock = DockStyle.Top;
             lblCashReceivedTitle.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
             lblCashReceivedTitle.ForeColor = Color.FromArgb(100, 110, 125);
-            lblCashReceivedTitle.Location = new Point(15, 337);
+            lblCashReceivedTitle.Location = new Point(15, 341);
             lblCashReceivedTitle.Name = "lblCashReceivedTitle";
             lblCashReceivedTitle.Padding = new Padding(0, 10, 0, 0);
-            lblCashReceivedTitle.Size = new Size(137, 27);
+            lblCashReceivedTitle.Size = new Size(170, 31);
             lblCashReceivedTitle.TabIndex = 4;
             lblCashReceivedTitle.Text = "Tiền khách đưa (VNĐ):";
             // 
@@ -290,7 +291,7 @@ namespace MiniSupermarket.WinForms
             panelQuickCash.Controls.Add(btnCash200k);
             panelQuickCash.Controls.Add(btnCash500k);
             panelQuickCash.Dock = DockStyle.Top;
-            panelQuickCash.Location = new Point(15, 260);
+            panelQuickCash.Location = new Point(15, 264);
             panelQuickCash.Name = "panelQuickCash";
             panelQuickCash.Padding = new Padding(0, 5, 0, 0);
             panelQuickCash.Size = new Size(324, 77);
@@ -376,7 +377,7 @@ namespace MiniSupermarket.WinForms
             lblTotalAmount.Dock = DockStyle.Top;
             lblTotalAmount.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
             lblTotalAmount.ForeColor = Color.FromArgb(220, 53, 69);
-            lblTotalAmount.Location = new Point(15, 200);
+            lblTotalAmount.Location = new Point(15, 204);
             lblTotalAmount.Name = "lblTotalAmount";
             lblTotalAmount.Size = new Size(324, 60);
             lblTotalAmount.TabIndex = 2;
@@ -392,7 +393,7 @@ namespace MiniSupermarket.WinForms
             lblTotalTitle.Location = new Point(15, 175);
             lblTotalTitle.Name = "lblTotalTitle";
             lblTotalTitle.Padding = new Padding(0, 6, 0, 0);
-            lblTotalTitle.Size = new Size(181, 25);
+            lblTotalTitle.Size = new Size(223, 29);
             lblTotalTitle.TabIndex = 1;
             lblTotalTitle.Text = "TỔNG TIỀN THANH TOÁN:";
             // 
@@ -437,7 +438,7 @@ namespace MiniSupermarket.WinForms
             lblCustomerPoints.ForeColor = Color.FromArgb(100, 110, 125);
             lblCustomerPoints.Location = new Point(10, 115);
             lblCustomerPoints.Name = "lblCustomerPoints";
-            lblCustomerPoints.Size = new Size(116, 15);
+            lblCustomerPoints.Size = new Size(149, 20);
             lblCustomerPoints.TabIndex = 4;
             lblCustomerPoints.Text = "Điểm tích lũy: 0 điểm";
             // 
@@ -448,7 +449,7 @@ namespace MiniSupermarket.WinForms
             lblCustomerName.ForeColor = Color.FromArgb(41, 100, 180);
             lblCustomerName.Location = new Point(10, 88);
             lblCustomerName.Name = "lblCustomerName";
-            lblCustomerName.Size = new Size(106, 19);
+            lblCustomerName.Size = new Size(129, 25);
             lblCustomerName.TabIndex = 3;
             lblCustomerName.Text = "Khách vãng lai";
             // 
@@ -459,7 +460,7 @@ namespace MiniSupermarket.WinForms
             txtCustomerPhone.Location = new Point(10, 47);
             txtCustomerPhone.Name = "txtCustomerPhone";
             txtCustomerPhone.PlaceholderText = "SĐT (VD: 0903456789)...";
-            txtCustomerPhone.Size = new Size(218, 24);
+            txtCustomerPhone.Size = new Size(218, 29);
             txtCustomerPhone.TabIndex = 1;
             txtCustomerPhone.KeyDown += txtCustomerPhone_KeyDown;
             // 
@@ -470,13 +471,13 @@ namespace MiniSupermarket.WinForms
             lblPhone.ForeColor = Color.FromArgb(70, 80, 95);
             lblPhone.Location = new Point(10, 26);
             lblPhone.Name = "lblPhone";
-            lblPhone.Size = new Size(80, 15);
+            lblPhone.Size = new Size(100, 20);
             lblPhone.TabIndex = 0;
             lblPhone.Text = "Số điện thoại:";
             // 
             // FormPOS
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleDimensions = new SizeF(9F, 21F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(244, 245, 247);
             ClientSize = new Size(1040, 660);
