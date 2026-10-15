@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -10,6 +12,8 @@ namespace MiniSupermarket.WinForms
 {
     public partial class FormCustomerManagement : Form
     {
+        private List<CustomerDto> _allCustomers = new();
+
         public FormCustomerManagement()
         {
             InitializeComponent();
@@ -32,6 +36,11 @@ namespace MiniSupermarket.WinForms
 
         private async void FormCustomerManagement_Load(object sender, EventArgs e)
         {
+            if (cboFilterRank.Items.Count > 0 && cboFilterRank.SelectedIndex == -1)
+            {
+                cboFilterRank.SelectedIndex = 0; // "Tất cả hạng"
+            }
+
             if (cbMembershipRank.Items.Count > 0 && cbMembershipRank.SelectedIndex == -1)
             {
                 cbMembershipRank.SelectedIndex = 0;
@@ -53,8 +62,8 @@ namespace MiniSupermarket.WinForms
                 var response = await client.GetAsync("customers");
                 if (response.IsSuccessStatusCode)
                 {
-                    var customers = await response.Content.ReadFromJsonAsync<List<CustomerDto>>();
-                    dgvCustomers.DataSource = customers;
+                    _allCustomers = await response.Content.ReadFromJsonAsync<List<CustomerDto>>() ?? new List<CustomerDto>();
+                    ApplyFilter();
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -71,6 +80,46 @@ namespace MiniSupermarket.WinForms
             }
         }
 
+        private void ApplyFilter()
+        {
+            string keyword = txtKeyword.Text.Trim().ToLower();
+            string selectedRank = cboFilterRank.SelectedItem?.ToString() ?? "Tất cả hạng";
+
+            var filtered = _allCustomers.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                filtered = filtered.Where(c => 
+                    (!string.IsNullOrEmpty(c.CustomerName) && c.CustomerName.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(c.PhoneNumber) && c.PhoneNumber.Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(c.Address) && c.Address.ToLower().Contains(keyword)) ||
+                    c.CustomerId.ToString() == keyword);
+            }
+
+            if (selectedRank != "Tất cả hạng" && !string.IsNullOrEmpty(selectedRank))
+            {
+                filtered = filtered.Where(c => string.Equals(c.MembershipRank, selectedRank, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var list = filtered.ToList();
+            dgvCustomers.DataSource = list;
+            lblCustomerCount.Text = $"Tổng số: {list.Count} khách hàng";
+        }
+
+        private void cboFilterRank_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyFilter();
+        }
+
+        private void txtKeyword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                ApplyFilter();
+            }
+        }
+
         private void dgvCustomers_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && dgvCustomers.Rows[e.RowIndex].DataBoundItem is CustomerDto customer)
@@ -83,6 +132,49 @@ namespace MiniSupermarket.WinForms
                 
                 int rankIndex = cbMembershipRank.FindStringExact(customer.MembershipRank ?? "Chuẩn");
                 cbMembershipRank.SelectedIndex = rankIndex >= 0 ? rankIndex : 0;
+            }
+        }
+
+        private void dgvCustomers_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.Value == null || e.CellStyle == null) return;
+
+            // Định dạng hiển thị điểm tích lũy có dấu phân cách hàng nghìn
+            if (dgvCustomers.Columns[e.ColumnIndex].Name == "colPoints" && e.Value is int points)
+            {
+                e.Value = points.ToString("N0");
+                e.FormattingApplied = true;
+            }
+            // Định dạng trực quan thẻ thành viên với màu sắc & biểu tượng
+            else if (dgvCustomers.Columns[e.ColumnIndex].Name == "colRank")
+            {
+                string rank = e.Value?.ToString() ?? "";
+                switch (rank.Trim())
+                {
+                    case "Kim cương":
+                        e.Value = "💎 Kim cương";
+                        e.CellStyle.ForeColor = Color.FromArgb(102, 16, 242);
+                        e.CellStyle.Font = new Font(dgvCustomers.Font, FontStyle.Bold);
+                        e.FormattingApplied = true;
+                        break;
+                    case "Vàng":
+                        e.Value = "⭐ Vàng";
+                        e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6);
+                        e.CellStyle.Font = new Font(dgvCustomers.Font, FontStyle.Bold);
+                        e.FormattingApplied = true;
+                        break;
+                    case "Bạc":
+                        e.Value = "🥈 Bạc";
+                        e.CellStyle.ForeColor = Color.FromArgb(75, 85, 99);
+                        e.CellStyle.Font = new Font(dgvCustomers.Font, FontStyle.Bold);
+                        e.FormattingApplied = true;
+                        break;
+                    case "Chuẩn":
+                        e.Value = "🏷️ Chuẩn";
+                        e.CellStyle.ForeColor = Color.FromArgb(16, 120, 60);
+                        e.FormattingApplied = true;
+                        break;
+                }
             }
         }
 
@@ -264,8 +356,8 @@ namespace MiniSupermarket.WinForms
                 var response = await client.GetAsync($"customers/search?keyword={Uri.EscapeDataString(keyword)}");
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<List<CustomerDto>>();
-                    dgvCustomers.DataSource = result;
+                    _allCustomers = await response.Content.ReadFromJsonAsync<List<CustomerDto>>() ?? new List<CustomerDto>();
+                    ApplyFilter();
                 }
                 else
                 {
@@ -281,7 +373,16 @@ namespace MiniSupermarket.WinForms
         private async void btnLoad_Click(object sender, EventArgs e)
         {
             txtKeyword.Clear();
+            if (cboFilterRank.Items.Count > 0)
+            {
+                cboFilterRank.SelectedIndex = 0;
+            }
             await LoadDataAsync();
+            ClearInputs();
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
             ClearInputs();
         }
 
@@ -296,6 +397,7 @@ namespace MiniSupermarket.WinForms
             {
                 cbMembershipRank.SelectedIndex = 0;
             }
+            txtCustomerName.Focus();
         }
     }
 

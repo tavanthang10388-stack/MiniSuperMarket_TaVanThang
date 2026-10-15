@@ -72,6 +72,9 @@ builder.Services.AddSwaggerGen(c => {
             Array.Empty<string>()
         }
     });
+
+    // Tránh xung đột SchemaId giữa các DTO trùng tên
+    c.CustomSchemaIds(type => type.FullName ?? type.Name);
 });
 
 var app = builder.Build();
