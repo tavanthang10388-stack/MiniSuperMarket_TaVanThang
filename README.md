@@ -3,8 +3,8 @@
 **Môn học:** Lập trình Ứng dụng .NET Core  
 **Mã môn học:** 229162  
 **Buổi thực hành:** Buổi 4 – Thiết kế kiến trúc giao diện WinForms Shell và điều hướng phân quyền  
-**Sinh viên:** Nguyễn Quốc Vương  
-**Mã sinh viên:** 2124110272  
+**Sinh viên:** Tạ Văn Thắng
+**Mã sinh viên:** 2124110256
 **Lớp học phần:** CCQ2411D  
 
 ---
