@@ -1,96 +1,150 @@
-# 🛒 DỰ ÁN HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
+# 🛒 HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
 
-## 👤 THÔNG TIN SINH VIÊN BÁO CÁO
-* **Họ và tên:** Tạ Văn Thắng
-* **Mã sinh viên:** 2124110256
-* **Lớp học phần:** CCQ2411D
-* **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
-
----
-
-## 📅 BÁO CÁO CHI TIẾT - BUỔI 3: TÍCH HỢP SQL SERVER VÀ ENTITY FRAMEWORK CORE CODE-FIRST
-
-### 1. MỤC TIÊU VÀ BỐI CẢNH THỰC TẾ
-* **Mục tiêu:** 
-  * Thay thế hoàn toàn cơ chế lưu tạm trên RAM (In-Memory) ở Buổi 1 và Buổi 2 bằng hệ quản trị cơ sở dữ liệu quan hệ **Microsoft SQL Server**.
-  * Làm chủ kỹ thuật **Entity Framework Core (EF Core) Code-First**: Định nghĩa cấu trúc lớp C# (Entities) trước rồi tự động sinh cấu trúc bảng tương ứng trong CSDL.
-  * Nắm vững các công cụ dòng lệnh **EF Core Migrations** và tối ưu hiệu năng truy vấn dữ liệu bất đồng bộ bằng **LINQ (async/await)**.
-* **Bối cảnh thực tế đồ án:** Khi nhân viên thu ngân thực hiện các thao tác thêm mới, sửa, hoặc xóa dữ liệu nhóm hàng (Category) và sản phẩm (Product) trên giao diện desktop WinForms, toàn bộ dữ liệu phải được lưu trữ vĩnh viễn trong CSDL `TaVanThang_MiniSupermarketDb`. Khi tắt ứng dụng hoặc khởi động lại API, các bản ghi dữ liệu vẫn được đảm bảo toàn vẹn.
+**Môn học:** Lập trình Ứng dụng .NET Core  
+**Mã môn học:** 229162  
+**Buổi thực hành:** Buổi 4 – Thiết kế kiến trúc giao diện WinForms Shell và điều hướng phân quyền  
+**Sinh viên:** Nguyễn Quốc Vương  
+**Mã sinh viên:** 2124110272  
+**Lớp học phần:** CCQ2411D  
 
 ---
 
-### 📂 2. CẤU TRÚC THƯ MỤC TOÀN CỤC CỦA DỰ ÁN
-```text
-MiniSupermarketSystem/
-│
-├── MiniSupermarket.API/          # Dự án Web API (Backend)
-│   ├── Controllers/              
-│   │   └── CategoriesController.cs # Xử lý API CRUD kết nối trực tiếp với DB (async/await)
-│   ├── Data/                     
-│   │   └── SupermarketDbContext.cs # Quản lý kết nối Database và cấu hình nạp sẵn dữ liệu mồi
-│   ├── Migrations/               # Thư mục tự động sinh ra khi thực thi lệnh Migration quản lý DB
-│   ├── Models/                   
-│   │   ├── Category.cs           # Thực thể Nhóm hàng (Data Annotations & Quan hệ 1-N)
-│   │   └── Product.cs            # Thực thể Sản phẩm (Cấu hình kiểu dữ liệu & Khóa ngoại)
-│   ├── appsettings.json          # Cấu hình Chuỗi kết nối kết nối (ConnectionStrings - sa/123456)
-│   └── Program.cs                # Đăng ký DbContext vào kiến trúc Dependency Injection (DI)
-│
-└── MiniSupermarket.WinForms/     # Dự án Windows Forms (Frontend Client)
-    └── FormCategoryManagement.cs # Giao diện đồ họa tương tác và thực thi gọi API Client
-```
+## 1. 📝 Giới thiệu buổi thực hành
 
----
+Buổi thực hành 4 tập trung xây dựng kiến trúc giao diện WinForms Shell theo mô hình Single-Form Architecture, thiết kế Sidebar và Main Workspace, đồng thời triển khai cơ chế điều hướng và phân quyền người dùng theo ba vai trò: Admin, Cashier và Warehouse.
 
-### 🛠️ 3. NỘI DUNG CÁC BƯỚC ĐÃ THỰC HIỆN
+## 2. 🖥️ Xây dựng giao diện WinForms Shell
 
-#### Bước 1: Thiết lập thư viện nền tảng (NuGet Packages)
-Đã cài đặt thành công 3 gói thư viện nền tảng dành cho dự án Backend (`MiniSupermarket.API`):
-1. `Microsoft.EntityFrameworkCore.SqlServer` - Trình điều khiển giao tiếp hạ tầng SQL Server.
-2. `Microsoft.EntityFrameworkCore.Tools` - Cung cấp bộ lệnh quản trị cơ sở dữ liệu trong PMC.
-3. `Microsoft.EntityFrameworkCore.Design` - Hỗ trợ môi trường sinh mã tự động cấu trúc bảng CSDL.
+### 2.1. FormMainShell.cs
 
-#### Bước 2: Khai báo kết nối hệ thống phòng máy (`appsettings.json`)
-Sử dụng tài khoản quản trị hệ thống cao cấp `sa` với mật khẩu được thiết lập lại đồng bộ `123456` tại phòng thực hành:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=.;Database=TaVanThang_MiniSupermarketDb;User Id=sa;Password=123456;MultipleActiveResultSets=true;TrustServerCertificate=True"
-}
-```
+Thiết kế giao diện chính của hệ thống với các thành phần:
 
-#### Bước 3: Đăng ký dịch vụ lõi (`Program.cs`)
-Tiêm phụ thuộc cấu hình kết nối ứng dụng thông qua dịch vụ hệ thống:
-```csharp
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<SupermarketDbContext>(options =>
-    options.UseSqlServer(connectionString));
-```
+- **`panelSidebar`**: Thanh điều hướng bên trái, có chiều rộng 230px, màu xanh đen, chứa logo và các nút chức năng.
+- **`panelTopHeader`**: Thanh tiêu đề phía trên, cao 60px, nền trắng, hiển thị tiêu đề màn hình và thông tin người dùng đăng nhập.
+- **`panelMainContent`**: Vùng nội dung trung tâm, sử dụng `Dock = Fill` để hiển thị các Form con.
+- **`lblTitle`**: Hiển thị tiêu đề màn hình hiện tại.
+- **`lblUserInfo`**: Hiển thị thông tin tài khoản đăng nhập.
 
-#### Bước 4: Đồng bộ hóa cơ sở dữ liệu (EF Core Migrations)
-Khởi chạy thành công bộ mã tạo dựng cơ sở dữ liệu trong cửa sổ *Package Manager Console*:
-1. **Lệnh tạo ánh xạ cấu trúc hình thể:** 
-   ```powershell
-   Add-Migration InitialCreateDatabase1
-   ```
-2. **Lệnh áp dụng thực tế:** 
-   ```powershell
-   Update-Database
-   ```
-   *Kết quả thực thi:* Hệ thống biên dịch thành công và báo trạng thái **`Done.`**. Hệ quản trị SQL Server Management Studio (SSMS) tự động khởi tạo cơ sở dữ liệu `TaVanThang_MiniSupermarketDb` với đầy đủ ràng buộc khóa chính, khóa ngoại của hai bảng dữ liệu `Categories`, `Products`, cùng dữ liệu mồi mặc định (5 nhóm hàng).
+Các nút chức năng trên Sidebar:
 
-#### Bước 5: Viết bộ điều khiển API bất đồng bộ (`CategoriesController.cs`)
-Xóa bỏ hoàn toàn lớp dữ liệu bộ nhớ tạm cứng thời gian trước. Chuyển đổi sang gọi dữ liệu qua thực thể `_context` bằng kỹ thuật xử lý đa luồng độc lập như `ToListAsync()`, `FindAsync(id)`, và `SaveChangesAsync()` để ứng dụng chạy mượt mà, tối ưu tài nguyên phần cứng.
+- `btnPOS`: Bán hàng POS.
+- `btnCategory`: Quản lý danh mục.
+- `btnProduct`: Quản lý sản phẩm.
+- `btnCustomer`: Quản lý khách hàng.
+- `btnReports`: Báo cáo doanh thu.
+- `btnUserManage`: Quản lý tài khoản.
+- `btnLogout`: Đăng xuất.
 
----
+## 3. 🔄 Nhúng động Form con
 
-### 🚀 4. HƯỚNG DẪN KHỞI CHẠY VÀ KIỂM THỬ DỰ ÁN
+### 3.1. Hàm OpenChildForm
 
-#### Bước 1: Khởi động và chạy phía Backend (Web API)
-1. Mở Solution bằng phần mềm **Visual Studio 2022**.
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.API`** chọn **Set as Startup Project**.
-3. Nhấn phím **F5** để chạy dịch vụ. Trình duyệt mặc định tự động mở ra giao diện trực quan **Swagger UI**.
-4. Thực hiện thử nghiệm tính năng `GET /api/Categories`, hệ thống trả về mã trạng thái `200 OK` cùng chuỗi nội dung dữ liệu JSON chứa đúng 5 thực thể danh mục mẫu được gọi từ SQL Server lên.
+Xây dựng cơ chế nhúng các Form nghiệp vụ vào `panelMainContent` thay vì mở nhiều cửa sổ riêng biệt.
 
-#### Bước 2: Khởi động và chạy phía Frontend (WinForms Client)
-1. Cấu hình cổng kết nối (Port) HttpClient ở tầng WinForms trùng khớp với Port đang chạy thực tế của Web API (`https://localhost:XXXXX`).
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.WinForms`** ➔ Chọn **Debug** ➔ **Start New Instance**.
-3. Trải nghiệm thao tác trên giao diện: Click nút **Tải danh sách**, thực hiện nghiệp vụ **Thêm mới**, **Sửa đổi thông tin**, và **Xóa** trực tiếp. Dữ liệu thay đổi cập nhật đồng bộ tức thì, chính xác xuống bảng cơ sở dữ liệu bên phần mềm Microsoft SQL Server Management Studio (SSMS).
+Các bước thực hiện:
+
+1. Thiết lập `TopLevel = false` cho Form con.
+2. Thiết lập `FormBorderStyle = None` để loại bỏ viền cửa sổ.
+3. Thiết lập `Dock = Fill` để Form con vừa khít vùng nội dung.
+4. Đóng và dọn dẹp Form con cũ trước khi hiển thị Form mới.
+5. Đưa Form mới lên phía trước bằng `BringToFront`.
+6. Cập nhật tiêu đề màn hình trên `lblTitle`.
+7. Sử dụng `HighlightActiveButton` để làm nổi bật nút điều hướng đang được chọn.
+
+**Kết quả:** Giao diện chuyển đổi giữa các chức năng trong cùng một cửa sổ chính, hạn chế việc mở nhiều cửa sổ và tạo trải nghiệm sử dụng thống nhất.
+
+## 4. 🛡️ Phân quyền người dùng (RBAC)
+
+### 4.1. Hàm ApplyRolePermissions
+
+Triển khai cơ chế phân quyền hiển thị chức năng dựa trên vai trò của tài khoản đăng nhập.
+
+| Vai trò | Quyền truy cập |
+|---|---|| Admin | Toàn quyền truy cập các chức năng quản lý |
+| Cashier | Bán hàng POS và quản lý khách hàng |
+| Warehouse | Quản lý danh mục và sản phẩm |
+
+### 4.2. Hàm OpenDefaultScreenByRole
+
+Sau khi đăng nhập thành công, hệ thống tự động mở màn hình làm việc mặc định tương ứng với vai trò người dùng.
+
+- **Admin:** Mở màn hình Quản lý danh mục.
+- **Cashier:** Mở màn hình Bán hàng POS.
+- **Warehouse:** Mở màn hình Quản lý sản phẩm.
+
+### 4.3. Phân quyền ở cấp độ thao tác
+
+Bên cạnh việc ẩn hoặc hiện các nút trên Sidebar, hệ thống bổ sung kiểm tra quyền trực tiếp tại các sự kiện xử lý chức năng.
+
+Ví dụ: Chỉ tài khoản Admin mới được phép truy cập chức năng Báo cáo doanh thu.
+
+Cách tiếp cận này giúp hạn chế việc truy cập trái phép vào các chức năng không thuộc quyền hạn của người dùng.
+
+## 5. 🧩 Xây dựng các Form nghiệp vụ
+
+### 5.1. FormPOS.cs – Màn hình bán hàng
+
+Các chức năng chính:
+
+- Nhập hoặc quét mã vạch sản phẩm thông qua `txtBarcode`.
+- Quản lý danh sách sản phẩm trong giỏ hàng bằng `dgvCart`.
+- Tính tổng tiền đơn hàng.
+- Tính tiền khách đưa và tiền thừa.
+- Thực hiện thanh toán đơn hàng thông qua API.
+
+### 5.2. FormProductManagement.cs – Quản lý sản phẩm
+
+Các chức năng chính:
+
+- Hiển thị danh sách sản phẩm.
+- Tìm kiếm sản phẩm.
+- Thêm, sửa và xóa thông tin sản phẩm.
+- Đồng bộ thông tin danh mục với dữ liệu từ API.
+
+### 5.3. FormUserManagement.cs – Quản trị tài khoản
+
+Chức năng dành riêng cho Admin, bao gồm:
+
+- Thêm mới tài khoản người dùng.
+- Quản lý thông tin tài khoản.
+- Phân quyền người dùng theo các vai trò Admin, Cashier và Warehouse.
+
+## 6. 🧪 Kiểm thử và xác minh phân quyền
+
+### 6.1. Tài khoản kiểm thử
+
+| Tài khoản | Mật khẩu | Vai trò | Màn hình mặc định |
+|---|---|---|---|
+| `admin01` | `123456` | Admin | Quản lý danh mục |
+| `cashier01` | `123456` | Cashier | Bán hàng POS |
+| `ware01` | `123456` | Warehouse | Quản lý sản phẩm |
+
+### 6.2. Kết quả kiểm thử phân quyền
+
+- [x] **Admin:** Sidebar hiển thị đầy đủ các chức năng quản lý.
+- [x] **Cashier:** Sidebar chỉ hiển thị Bán hàng POS và Quản lý khách hàng.
+- [x] **Warehouse:** Sidebar chỉ hiển thị Quản lý danh mục và Quản lý sản phẩm.
+- [x] Hệ thống tự động mở màn hình mặc định theo vai trò.
+- [x] Các Form con được nhúng vừa khít trong `panelMainContent`.
+- [x] Chuyển đổi giữa các Form không tạo thêm cửa sổ chính.
+- [x] Nút điều hướng đang hoạt động được đổi màu để phân biệt với các nút còn lại.
+
+## 7. ✅ Kết quả đạt được
+
+Sau buổi thực hành 4, hệ thống đã triển khai các nội dung chính:
+
+- Xây dựng kiến trúc giao diện WinForms Shell theo mô hình Single-Form Architecture.
+- Thiết kế Sidebar, Header và vùng làm việc trung tâm.
+- Triển khai cơ chế nhúng động Form con.
+- Xây dựng chức năng điều hướng giữa các màn hình nghiệp vụ.
+- Áp dụng phân quyền giao diện theo ba vai trò Admin, Cashier và Warehouse.
+- Tự động điều hướng đến màn hình mặc định sau khi đăng nhập.
+- Bổ sung kiểm tra quyền truy cập tại cấp độ thao tác.
+- Kiểm thử giao diện và xác minh kết quả phân quyền bằng các tài khoản mẫu.
+
+## 8. 👨‍💻 Thông tin sinh viên
+
+- **Họ và tên:** Tạ Văn Thắng
+- **Mã sinh viên:** 2124110256
+- **Lớp học phần:** CCQ2411D
+- **Môn học:** Lập trình Ứng dụng .NET Core (229162)
