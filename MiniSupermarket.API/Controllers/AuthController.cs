@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MiniSupermarket.API.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,21 +11,26 @@ namespace MiniSupermarket.API.Controllers {
     [ApiController]
     public class AuthController : ControllerBase {
         private readonly IConfiguration _configuration;
+        private readonly SupermarketDbContext _context;
 
-        public AuthController(IConfiguration configuration) {
+        public AuthController(IConfiguration configuration, SupermarketDbContext context) {
             _configuration = configuration;
+            _context = context;
         }
 
         // Endpoint Đăng nhập: POST /api/auth/login
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequestDto request) {
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request) {
             if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password)) {
                 return BadRequest(new { success = false, message = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!" });
             }
 
-            var user = UserStore.Users.FirstOrDefault(u => 
-                u.Username.Equals(request.Username.Trim(), StringComparison.OrdinalIgnoreCase) && 
-                u.Password == request.Password.Trim());
+            var username = request.Username.Trim();
+            var password = request.Password.Trim();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => 
+                u.Username.ToLower() == username.ToLower() && 
+                u.Password == password);
 
             if (user == null) {
                 return Unauthorized(new { success = false, message = "Sai tài khoản hoặc mật khẩu!" });
