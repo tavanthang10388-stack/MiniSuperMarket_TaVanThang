@@ -45,6 +45,15 @@ namespace MiniSupermarket.WinForms {
             }
         }
 
+        // Phương thức cập nhật Bearer Token sau khi đăng nhập thành công
+        public static void AttachToken(string token) {
+            SessionManager.JwtToken = token;
+            _client.DefaultRequestHeaders.Authorization = null;
+            if (!string.IsNullOrEmpty(token)) {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
+
         // Hàm gọi API đăng nhập lấy Token và thông tin User
         public static async Task<bool> LoginAsync(string username, string password) {
             var loginObj = new { Username = username, Password = password };

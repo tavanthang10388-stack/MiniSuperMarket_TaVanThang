@@ -13,8 +13,8 @@ namespace MiniSupermarket.API.Models
         public decimal UnitPrice { get; set; }
     }
 
-    // DTO nhan yeu cau thanh toan tong the tu may POS
-    public class AdoCheckoutRequestDto
+    // DTO nhan yeu cau thanh toan tong the tu may POS (Tiết 5 - Buổi 5)
+    public class CheckoutRequestDto
     {
         // Tai khoan thu ngan dang dung ca truc
         public string CashierUsername { get; set; } = string.Empty;
@@ -24,5 +24,10 @@ namespace MiniSupermarket.API.Models
 
         // Danh sach cac mon hang can thanh toan
         public List<CartItemCheckoutDto> Items { get; set; } = new();
+    }
+
+    // Alias để tương thích cả AdoCheckoutRequestDto lẫn CheckoutRequestDto
+    public class AdoCheckoutRequestDto : CheckoutRequestDto
+    {
     }
 }

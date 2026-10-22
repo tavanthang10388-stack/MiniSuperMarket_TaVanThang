@@ -16,6 +16,48 @@ namespace MiniSupermarket.API.Controllers
             _context = context;
         }
 
+        // GET: api/customers/paged?keyword=an&pageNumber=1&pageSize=5
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedCustomers(
+            [FromQuery] string? keyword,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5)
+        {
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 5;
+
+            var query = _context.Customers
+                .AsNoTracking()
+                .OrderByDescending(c => c.RewardPoints)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string search = keyword.Trim().ToLower();
+                query = query.Where(c => c.CustomerName.ToLower().Contains(search) 
+                                      || c.PhoneNumber.Contains(search));
+            }
+
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var response = new PagedResult<Customer>
+            {
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                Items = items
+            };
+
+            return Ok(response);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

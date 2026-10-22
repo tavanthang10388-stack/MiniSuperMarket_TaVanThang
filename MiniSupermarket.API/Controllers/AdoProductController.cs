@@ -5,25 +5,11 @@
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using MiniSupermarket.API.Models;
 using System.Data;
 
 namespace MiniSupermarket.API.Controllers
 {
-    // DTO tra cuu san pham cho quay POS
-    public class ProductLookupDto
-    {
-        public int ProductId { get; set; }
-        public string Barcode { get; set; } = string.Empty;
-        public string ProductName { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
-    }
-
-    public class CategoryProductCountDto
-    {
-        public int CategoryId { get; set; }
-        public int TotalProducts { get; set; }
-    }
 
     [Route("api/ado-products")]
     [ApiController]

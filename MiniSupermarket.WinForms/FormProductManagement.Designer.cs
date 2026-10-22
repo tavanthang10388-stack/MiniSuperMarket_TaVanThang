@@ -28,6 +28,10 @@ namespace MiniSupermarket.WinForms
             lblSearch = new Label();
             panelGrid = new Panel();
             dgvProducts = new DataGridView();
+            panelPagination = new Panel();
+            btnPrev = new Button();
+            lblPaging = new Label();
+            btnNext = new Button();
             panelDetails = new Panel();
             groupActions = new GroupBox();
             btnClear = new Button();
@@ -49,6 +53,7 @@ namespace MiniSupermarket.WinForms
             lblId = new Label();
             panelSearch.SuspendLayout();
             panelGrid.SuspendLayout();
+            panelPagination.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
             panelDetails.SuspendLayout();
             groupActions.SuspendLayout();
@@ -115,6 +120,7 @@ namespace MiniSupermarket.WinForms
             cboFilterCategory.Name = "cboFilterCategory";
             cboFilterCategory.Size = new Size(220, 24);
             cboFilterCategory.TabIndex = 3;
+            cboFilterCategory.SelectedIndexChanged += cboFilterCategory_SelectedIndexChanged;
             // 
             // lblFilterCategory
             // 
@@ -151,12 +157,71 @@ namespace MiniSupermarket.WinForms
             // panelGrid
             // 
             panelGrid.Controls.Add(dgvProducts);
+            panelGrid.Controls.Add(panelPagination);
             panelGrid.Dock = DockStyle.Fill;
             panelGrid.Location = new Point(0, 60);
             panelGrid.Name = "panelGrid";
             panelGrid.Padding = new Padding(12);
             panelGrid.Size = new Size(700, 600);
             panelGrid.TabIndex = 1;
+            // 
+            // panelPagination
+            // 
+            panelPagination.BackColor = Color.White;
+            panelPagination.BorderStyle = BorderStyle.FixedSingle;
+            panelPagination.Controls.Add(lblPaging);
+            panelPagination.Controls.Add(btnNext);
+            panelPagination.Controls.Add(btnPrev);
+            panelPagination.Dock = DockStyle.Bottom;
+            panelPagination.Location = new Point(12, 544);
+            panelPagination.Name = "panelPagination";
+            panelPagination.Size = new Size(676, 44);
+            panelPagination.TabIndex = 1;
+            // 
+            // btnPrev
+            // 
+            btnPrev.BackColor = Color.FromArgb(41, 100, 180);
+            btnPrev.Cursor = Cursors.Hand;
+            btnPrev.FlatAppearance.BorderSize = 0;
+            btnPrev.FlatStyle = FlatStyle.Flat;
+            btnPrev.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+            btnPrev.ForeColor = Color.White;
+            btnPrev.Location = new Point(10, 6);
+            btnPrev.Name = "btnPrev";
+            btnPrev.Size = new Size(130, 30);
+            btnPrev.TabIndex = 0;
+            btnPrev.Text = "⏪ Trang trước";
+            btnPrev.UseVisualStyleBackColor = false;
+            btnPrev.Click += btnPrev_Click;
+            // 
+            // lblPaging
+            // 
+            lblPaging.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lblPaging.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
+            lblPaging.ForeColor = Color.FromArgb(40, 50, 70);
+            lblPaging.Location = new Point(146, 6);
+            lblPaging.Name = "lblPaging";
+            lblPaging.Size = new Size(384, 30);
+            lblPaging.TabIndex = 1;
+            lblPaging.Text = "Trang 1 / 1 (Tổng: 0 SP)";
+            lblPaging.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // btnNext
+            // 
+            btnNext.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnNext.BackColor = Color.FromArgb(41, 100, 180);
+            btnNext.Cursor = Cursors.Hand;
+            btnNext.FlatAppearance.BorderSize = 0;
+            btnNext.FlatStyle = FlatStyle.Flat;
+            btnNext.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+            btnNext.ForeColor = Color.White;
+            btnNext.Location = new Point(536, 6);
+            btnNext.Name = "btnNext";
+            btnNext.Size = new Size(130, 30);
+            btnNext.TabIndex = 2;
+            btnNext.Text = "Trang sau ⏩";
+            btnNext.UseVisualStyleBackColor = false;
+            btnNext.Click += btnNext_Click;
             // 
             // dgvProducts
             // 
@@ -448,6 +513,7 @@ namespace MiniSupermarket.WinForms
             panelSearch.ResumeLayout(false);
             panelSearch.PerformLayout();
             panelGrid.ResumeLayout(false);
+            panelPagination.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
             panelDetails.ResumeLayout(false);
             groupActions.ResumeLayout(false);
@@ -469,6 +535,10 @@ namespace MiniSupermarket.WinForms
         private Button btnRefresh;
         private Panel panelGrid;
         private DataGridView dgvProducts;
+        private Panel panelPagination;
+        private Button btnPrev;
+        private Label lblPaging;
+        private Button btnNext;
         private Panel panelDetails;
         private GroupBox groupProductDetails;
         private TextBox txtId;
