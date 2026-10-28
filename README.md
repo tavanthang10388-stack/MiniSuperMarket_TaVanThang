@@ -1,150 +1,167 @@
-# 🛒 HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
+# 🛒 MINISUPERMARKET SYSTEM
 
-**Môn học:** Lập trình Ứng dụng .NET Core  
-**Mã môn học:** 229162  
-**Buổi thực hành:** Buổi 4 – Thiết kế kiến trúc giao diện WinForms Shell và điều hướng phân quyền  
-**Sinh viên:** Tạ Văn Thắng
-**Mã sinh viên:** 2124110256
-**Lớp học phần:** CCQ2411D  
+## 📅 BUỔI 4: THIẾT KẾ GIAO DIỆN WINFORMS SHELL VÀ ĐIỀU HƯỚNG PHÂN QUYỀN (ADMIN / CASHIER / WAREHOUSE)
+
+### 📂 3. Cấu trúc Thư mục Dự án
+
+```text
+MiniSuperMarket_TaVanThang/
+│
+├── MiniSupermarket.API/               # Dự án Web API (Backend)
+│   ├── Controllers/
+│   │   ├── AuthController.cs           # Xác thực và đăng nhập JWT
+│   │   ├── CategoriesController.cs     # API quản lý danh mục
+│   │   ├── ProductsController.cs       # API quản lý sản phẩm
+│   │   ├── CustomersController.cs      # API quản lý khách hàng
+│   │   ├── UsersController.cs          # API quản lý tài khoản
+│   │   ├── RolesController.cs          # API quản lý vai trò
+│   │   ├── OrdersController.cs         # API quản lý đơn hàng
+│   │   ├── CheckoutController.cs       # API xử lý thanh toán
+│   │   └── ReportsController.cs        # API báo cáo doanh thu
+│   │
+│   ├── Data/
+│   │   ├── SupermarketDbContext.cs     # Quản lý kết nối SQL Server
+│   │   └── UserStore.cs                # Thành phần lưu trữ người dùng
+│   │
+│   ├── Models/                         # Các thực thể dữ liệu hệ thống
+│   ├── Migrations/                     # Quản lý phiên bản cơ sở dữ liệu
+│   ├── appsettings.json                # Cấu hình SQL Server và JWT
+│   └── Program.cs                      # Cấu hình dịch vụ và Middleware
+│
+├── MiniSupermarket.WinForms/           # Dự án Windows Forms (Frontend)
+│   ├── FormLogin.cs                    # Giao diện đăng nhập
+│   ├── FormMainShell.cs                # Giao diện chính Sidebar & Workspace
+│   ├── FormCategoryManagement.cs       # Quản lý danh mục nhóm hàng
+│   ├── FormProductManagement.cs        # Quản lý sản phẩm và tồn kho
+│   ├── FormCustomerManagement.cs       # Quản lý khách hàng
+│   ├── FormPOS.cs                       # Giao diện bán hàng POS
+│   ├── FormQuickReport.cs              # Giao diện báo cáo nhanh
+│   ├── FormUserManagement.cs           # Quản lý tài khoản nhân viên
+│   ├── FormRoleManagement.cs           # Quản lý vai trò người dùng
+│   ├── SessionManager.cs               # Quản lý JWT Token và phiên đăng nhập
+│   ├── Services/
+│   │   └── ApiClientService.cs         # Kết nối Backend Web API
+│   └── Program.cs                      # Khởi chạy ứng dụng WinForms
+│
+└── MiniSuperMarket_TaVanThang.sln      # Solution Visual Studio 2022
+```
 
 ---
 
-## 1. 📝 Giới thiệu buổi thực hành
+### 🚀 4. Hướng dẫn Chạy và Kiểm thử Dự án
 
-Buổi thực hành 4 tập trung xây dựng kiến trúc giao diện WinForms Shell theo mô hình Single-Form Architecture, thiết kế Sidebar và Main Workspace, đồng thời triển khai cơ chế điều hướng và phân quyền người dùng theo ba vai trò: Admin, Cashier và Warehouse.
+#### Bước 1: Chạy phía Backend (Web API)
 
-## 2. 🖥️ Xây dựng giao diện WinForms Shell
+1. Mở Solution `MiniSuperMarket_TaVanThang.sln` bằng **Visual Studio 2022**.
 
-### 2.1. FormMainShell.cs
+2. Nhấp chuột phải vào project `MiniSupermarket.API`, chọn **Set as Startup Project**.
 
-Thiết kế giao diện chính của hệ thống với các thành phần:
+3. Kiểm tra kết nối SQL Server trong `appsettings.json`, đảm bảo trỏ đến cơ sở dữ liệu của dự án.
 
-- **`panelSidebar`**: Thanh điều hướng bên trái, có chiều rộng 230px, màu xanh đen, chứa logo và các nút chức năng.
-- **`panelTopHeader`**: Thanh tiêu đề phía trên, cao 60px, nền trắng, hiển thị tiêu đề màn hình và thông tin người dùng đăng nhập.
-- **`panelMainContent`**: Vùng nội dung trung tâm, sử dụng `Dock = Fill` để hiển thị các Form con.
-- **`lblTitle`**: Hiển thị tiêu đề màn hình hiện tại.
-- **`lblUserInfo`**: Hiển thị thông tin tài khoản đăng nhập.
+4. Nhấn **F5** để chạy Web API và mở giao diện **Swagger UI** nếu đã cấu hình Swagger.
 
-Các nút chức năng trên Sidebar:
+5. Kiểm tra API đăng nhập `POST /api/auth/login` và các API quản lý danh mục, sản phẩm, khách hàng, tài khoản, vai trò.
 
-- `btnPOS`: Bán hàng POS.
-- `btnCategory`: Quản lý danh mục.
-- `btnProduct`: Quản lý sản phẩm.
-- `btnCustomer`: Quản lý khách hàng.
-- `btnReports`: Báo cáo doanh thu.
-- `btnUserManage`: Quản lý tài khoản.
-- `btnLogout`: Đăng xuất.
+6. Xác nhận các API yêu cầu xác thực chỉ cho phép truy cập khi có JWT Token hợp lệ.
 
-## 3. 🔄 Nhúng động Form con
+#### Bước 2: Chạy phía Frontend (WinForms Client)
 
-### 3.1. Hàm OpenChildForm
+1. Đảm bảo cổng (Port) trong `Services/ApiClientService.cs` khớp với địa chỉ `https://localhost:XXXXX` của Web API.
 
-Xây dựng cơ chế nhúng các Form nghiệp vụ vào `panelMainContent` thay vì mở nhiều cửa sổ riêng biệt.
+2. Nhấp chuột phải vào project `MiniSupermarket.WinForms`, chọn **Debug → Start New Instance**.
 
-Các bước thực hiện:
+3. Đăng nhập bằng tài khoản đã được cấu hình trong hệ thống.
 
-1. Thiết lập `TopLevel = false` cho Form con.
-2. Thiết lập `FormBorderStyle = None` để loại bỏ viền cửa sổ.
-3. Thiết lập `Dock = Fill` để Form con vừa khít vùng nội dung.
-4. Đóng và dọn dẹp Form con cũ trước khi hiển thị Form mới.
-5. Đưa Form mới lên phía trước bằng `BringToFront`.
-6. Cập nhật tiêu đề màn hình trên `lblTitle`.
-7. Sử dụng `HighlightActiveButton` để làm nổi bật nút điều hướng đang được chọn.
+4. Sau khi đăng nhập thành công, mở giao diện chính `FormMainShell`.
 
-**Kết quả:** Giao diện chuyển đổi giữa các chức năng trong cùng một cửa sổ chính, hạn chế việc mở nhiều cửa sổ và tạo trải nghiệm sử dụng thống nhất.
+5. Kiểm tra ba khu vực giao diện:
+   - **panelSidebar:** Thanh menu điều hướng bên trái.
+   - **panelTopHeader:** Hiển thị tiêu đề và thông tin tài khoản.
+   - **panelMainContent:** Khu vực hiển thị các Form chức năng.
 
-## 4. 🛡️ Phân quyền người dùng (RBAC)
+6. Nhấn vào các nút chức năng để kiểm tra việc chuyển đổi màn hình mà không mở nhiều cửa sổ độc lập.
 
-### 4.1. Hàm ApplyRolePermissions
+#### Bước 3: Kiểm thử phân quyền người dùng
 
-Triển khai cơ chế phân quyền hiển thị chức năng dựa trên vai trò của tài khoản đăng nhập.
+Kiểm thử với ba nhóm vai trò theo tài liệu thực hành:
 
-| Vai trò | Quyền truy cập |
-|---|---|| Admin | Toàn quyền truy cập các chức năng quản lý |
-| Cashier | Bán hàng POS và quản lý khách hàng |
+| Vai trò | Chức năng được phép |
+|---|---|
+| Admin | Toàn bộ chức năng quản trị |
+| Cashier | Bán hàng POS, quản lý khách hàng |
 | Warehouse | Quản lý danh mục và sản phẩm |
 
-### 4.2. Hàm OpenDefaultScreenByRole
+**Admin:**
+- Hiển thị các chức năng quản trị trong Sidebar.
+- Có quyền truy cập quản lý danh mục, sản phẩm, khách hàng, tài khoản, vai trò và báo cáo.
 
-Sau khi đăng nhập thành công, hệ thống tự động mở màn hình làm việc mặc định tương ứng với vai trò người dùng.
+**Cashier:**
+- Hiển thị chức năng Bán hàng POS và Quản lý khách hàng.
+- Không hiển thị chức năng quản trị và báo cáo doanh thu.
 
-- **Admin:** Mở màn hình Quản lý danh mục.
-- **Cashier:** Mở màn hình Bán hàng POS.
-- **Warehouse:** Mở màn hình Quản lý sản phẩm.
+**Warehouse:**
+- Hiển thị chức năng Quản lý danh mục và Quản lý sản phẩm.
+- Không hiển thị chức năng POS, quản lý tài khoản và báo cáo.
 
-### 4.3. Phân quyền ở cấp độ thao tác
+Kết quả phân quyền cần được kiểm tra thực tế theo tài khoản và JWT Role mà Backend cấp.
 
-Bên cạnh việc ẩn hoặc hiện các nút trên Sidebar, hệ thống bổ sung kiểm tra quyền trực tiếp tại các sự kiện xử lý chức năng.
+#### Bước 4: Kiểm thử điều hướng Form động
 
-Ví dụ: Chỉ tài khoản Admin mới được phép truy cập chức năng Báo cáo doanh thu.
+1. Đăng nhập bằng tài khoản có vai trò Admin.
 
-Cách tiếp cận này giúp hạn chế việc truy cập trái phép vào các chức năng không thuộc quyền hạn của người dùng.
+2. Nhấn **Quản lý danh mục** để hiển thị `FormCategoryManagement`.
 
-## 5. 🧩 Xây dựng các Form nghiệp vụ
+3. Nhấn **Quản lý sản phẩm** để hiển thị `FormProductManagement`.
 
-### 5.1. FormPOS.cs – Màn hình bán hàng
+4. Nhấn **Quản lý khách hàng** để hiển thị `FormCustomerManagement`.
 
-Các chức năng chính:
+5. Nhấn **Bán hàng POS** để mở `FormPOS`.
 
-- Nhập hoặc quét mã vạch sản phẩm thông qua `txtBarcode`.
-- Quản lý danh sách sản phẩm trong giỏ hàng bằng `dgvCart`.
-- Tính tổng tiền đơn hàng.
-- Tính tiền khách đưa và tiền thừa.
-- Thực hiện thanh toán đơn hàng thông qua API.
+6. Nhấn **Báo cáo doanh thu** để mở `FormQuickReport`.
 
-### 5.2. FormProductManagement.cs – Quản lý sản phẩm
+7. Nhấn **Quản lý tài khoản** để mở `FormUserManagement`.
 
-Các chức năng chính:
+8. Kiểm tra màn hình quản lý vai trò `FormRoleManagement` khi có đường điều hướng tương ứng.
 
-- Hiển thị danh sách sản phẩm.
-- Tìm kiếm sản phẩm.
-- Thêm, sửa và xóa thông tin sản phẩm.
-- Đồng bộ thông tin danh mục với dữ liệu từ API.
+9. Xác nhận các Form chức năng được nhúng trong `panelMainContent` bằng kỹ thuật `TopLevel = false` và `Dock = Fill`.
 
-### 5.3. FormUserManagement.cs – Quản trị tài khoản
+10. Kiểm tra nút Sidebar đang chọn được làm nổi bật và tiêu đề màn hình thay đổi tương ứng.
 
-Chức năng dành riêng cho Admin, bao gồm:
+#### Bước 5: Kiểm thử các chức năng nghiệp vụ
 
-- Thêm mới tài khoản người dùng.
-- Quản lý thông tin tài khoản.
-- Phân quyền người dùng theo các vai trò Admin, Cashier và Warehouse.
+Thực hiện kiểm tra giao diện theo từng phân hệ:
 
-## 6. 🧪 Kiểm thử và xác minh phân quyền
+- **Quản lý danh mục:** Tải danh sách, thêm, sửa, xóa và tìm kiếm nhóm hàng.
+- **Quản lý sản phẩm:** Hiển thị danh sách, quản lý giá bán, số lượng tồn kho và nhóm hàng.
+- **Quản lý khách hàng:** Hiển thị và cập nhật thông tin khách hàng.
+- **Bán hàng POS:** Kiểm tra giao diện giỏ hàng, tra cứu sản phẩm bằng Barcode và tính tổng tiền.
+- **Báo cáo nhanh:** Kiểm tra giao diện hiển thị thông tin doanh thu.
+- **Quản lý tài khoản:** Kiểm tra danh sách người dùng và chức năng quản trị được cấp phép.
+- **Quản lý vai trò:** Kiểm tra danh sách và thông tin các vai trò trong hệ thống.
 
-### 6.1. Tài khoản kiểm thử
+Các chức năng phụ thuộc API cần được kiểm tra với Backend đang chạy và dữ liệu hợp lệ.
 
-| Tài khoản | Mật khẩu | Vai trò | Màn hình mặc định |
-|---|---|---|---|
-| `admin01` | `123456` | Admin | Quản lý danh mục |
-| `cashier01` | `123456` | Cashier | Bán hàng POS |
-| `ware01` | `123456` | Warehouse | Quản lý sản phẩm |
+#### Bước 6: Kiểm thử đăng xuất và bảo mật
 
-### 6.2. Kết quả kiểm thử phân quyền
+1. Đăng nhập thành công vào hệ thống.
 
-- [x] **Admin:** Sidebar hiển thị đầy đủ các chức năng quản lý.
-- [x] **Cashier:** Sidebar chỉ hiển thị Bán hàng POS và Quản lý khách hàng.
-- [x] **Warehouse:** Sidebar chỉ hiển thị Quản lý danh mục và Quản lý sản phẩm.
-- [x] Hệ thống tự động mở màn hình mặc định theo vai trò.
-- [x] Các Form con được nhúng vừa khít trong `panelMainContent`.
-- [x] Chuyển đổi giữa các Form không tạo thêm cửa sổ chính.
-- [x] Nút điều hướng đang hoạt động được đổi màu để phân biệt với các nút còn lại.
+2. Nhấn nút **Đăng xuất** trên giao diện chính.
 
-## 7. ✅ Kết quả đạt được
+3. Xác nhận đăng xuất khi hệ thống hiển thị hộp thoại.
 
-Sau buổi thực hành 4, hệ thống đã triển khai các nội dung chính:
+4. Kiểm tra JWT Token và thông tin phiên đăng nhập trong `SessionManager` được xóa.
 
-- Xây dựng kiến trúc giao diện WinForms Shell theo mô hình Single-Form Architecture.
-- Thiết kế Sidebar, Header và vùng làm việc trung tâm.
-- Triển khai cơ chế nhúng động Form con.
-- Xây dựng chức năng điều hướng giữa các màn hình nghiệp vụ.
-- Áp dụng phân quyền giao diện theo ba vai trò Admin, Cashier và Warehouse.
-- Tự động điều hướng đến màn hình mặc định sau khi đăng nhập.
-- Bổ sung kiểm tra quyền truy cập tại cấp độ thao tác.
-- Kiểm thử giao diện và xác minh kết quả phân quyền bằng các tài khoản mẫu.
+5. Kiểm tra hệ thống quay về màn hình `FormLogin`.
 
-## 8. 👨‍💻 Thông tin sinh viên
+6. Đăng nhập bằng tài khoản có vai trò khác để kiểm tra lại giao diện và quyền hạn.
 
-- **Họ và tên:** Tạ Văn Thắng
+**Kết quả mong đợi:** Giao diện chính tự động điều chỉnh các chức năng theo vai trò người dùng, điều hướng các Form trong một cửa sổ và không cho phép truy cập trái quyền vào các API được bảo vệ.
+
+---
+
+### 👨‍💻 5. Tác giả
+
+- **Họ tên sinh viên:** Tạ Văn Thắng
 - **Mã sinh viên:** 2124110256
 - **Lớp học phần:** CCQ2411D
-- **Môn học:** Lập trình Ứng dụng .NET Core (229162)
+- **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
