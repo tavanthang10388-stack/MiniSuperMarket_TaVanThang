@@ -77,4 +77,4 @@ Các mã trạng thái trên là kết quả mong đợi khi cấu hình xác th
 - **Họ tên sinh viên:** Tạ Văn Thắng
 - **Mã sinh viên:** 2124110256
 - **Lớp học phần:** CCQ2411D
-- **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
+- **Học kỳ:**  Năm học 2026-2027
