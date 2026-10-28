@@ -1,96 +1,140 @@
-# 🛒 DỰ ÁN HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
+# 🛒 MINISUPERMARKET SYSTEM
+## 📅 BUỔI 3: TÍCH HỢP SQL SERVER VÀ ENTITY FRAMEWORK CORE CODE-FIRST
 
-## 👤 THÔNG TIN SINH VIÊN BÁO CÁO
-* **Họ và tên:** Tạ Văn Thắng
-* **Mã sinh viên:** 2124110256
-* **Lớp học phần:** CCQ2411D
-* **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
+### 📂 3. Cấu trúc Thư mục Dự án
 
----
-
-## 📅 BÁO CÁO CHI TIẾT - BUỔI 3: TÍCH HỢP SQL SERVER VÀ ENTITY FRAMEWORK CORE CODE-FIRST
-
-### 1. MỤC TIÊU VÀ BỐI CẢNH THỰC TẾ
-* **Mục tiêu:** 
-  * Thay thế hoàn toàn cơ chế lưu tạm trên RAM (In-Memory) ở Buổi 1 và Buổi 2 bằng hệ quản trị cơ sở dữ liệu quan hệ **Microsoft SQL Server**.
-  * Làm chủ kỹ thuật **Entity Framework Core (EF Core) Code-First**: Định nghĩa cấu trúc lớp C# (Entities) trước rồi tự động sinh cấu trúc bảng tương ứng trong CSDL.
-  * Nắm vững các công cụ dòng lệnh **EF Core Migrations** và tối ưu hiệu năng truy vấn dữ liệu bất đồng bộ bằng **LINQ (async/await)**.
-* **Bối cảnh thực tế đồ án:** Khi nhân viên thu ngân thực hiện các thao tác thêm mới, sửa, hoặc xóa dữ liệu nhóm hàng (Category) và sản phẩm (Product) trên giao diện desktop WinForms, toàn bộ dữ liệu phải được lưu trữ vĩnh viễn trong CSDL `TaVanThang_MiniSupermarketDb`. Khi tắt ứng dụng hoặc khởi động lại API, các bản ghi dữ liệu vẫn được đảm bảo toàn vẹn.
-
----
-
-### 📂 2. CẤU TRÚC THƯ MỤC TOÀN CỤC CỦA DỰ ÁN
 ```text
 MiniSupermarketSystem/
 │
-├── MiniSupermarket.API/          # Dự án Web API (Backend)
-│   ├── Controllers/              
-│   │   └── CategoriesController.cs # Xử lý API CRUD kết nối trực tiếp với DB (async/await)
-│   ├── Data/                     
-│   │   └── SupermarketDbContext.cs # Quản lý kết nối Database và cấu hình nạp sẵn dữ liệu mồi
-│   ├── Migrations/               # Thư mục tự động sinh ra khi thực thi lệnh Migration quản lý DB
-│   ├── Models/                   
-│   │   ├── Category.cs           # Thực thể Nhóm hàng (Data Annotations & Quan hệ 1-N)
-│   │   └── Product.cs            # Thực thể Sản phẩm (Cấu hình kiểu dữ liệu & Khóa ngoại)
-│   ├── appsettings.json          # Cấu hình Chuỗi kết nối kết nối (ConnectionStrings - sa/123456)
-│   └── Program.cs                # Đăng ký DbContext vào kiến trúc Dependency Injection (DI)
+├── MiniSupermarket.API/              # Dự án Web API (Backend)
+│   ├── Controllers/
+│   │   ├── AuthController.cs         # Xác thực và cấp JWT Token
+│   │   └── CategoriesController.cs   # CRUD và tìm kiếm danh mục từ SQL Server
+│   ├── Data/
+│   │   └── SupermarketDbContext.cs   # Kết nối và quản lý cơ sở dữ liệu
+│   ├── Models/
+│   │   ├── Category.cs               # Thực thể nhóm hàng
+│   │   └── Product.cs                # Thực thể sản phẩm
+│   ├── Migrations/                   # Quản lý phiên bản CSDL bằng EF Core
+│   ├── appsettings.json              # Cấu hình SQL Server và JWT
+│   └── Program.cs                    # Đăng ký DbContext và Middleware
 │
-└── MiniSupermarket.WinForms/     # Dự án Windows Forms (Frontend Client)
-    └── FormCategoryManagement.cs # Giao diện đồ họa tương tác và thực thi gọi API Client
+└── MiniSupermarket.WinForms/         # Dự án Windows Forms (Frontend Client)
+    ├── FormLogin.cs                  # Giao diện đăng nhập
+    ├── FormCategoryManagement.cs     # Giao diện quản lý danh mục CRUD
+    ├── SessionManager.cs             # Quản lý JWT Token
+    ├── ApiClientService.cs           # Kết nối và gọi Web API
+    └── Program.cs                    # Cấu hình khởi chạy ứng dụng
 ```
 
 ---
 
-### 🛠️ 3. NỘI DUNG CÁC BƯỚC ĐÃ THỰC HIỆN
+### 🚀 4. Hướng dẫn Chạy và Kiểm thử Dự án
 
-#### Bước 1: Thiết lập thư viện nền tảng (NuGet Packages)
-Đã cài đặt thành công 3 gói thư viện nền tảng dành cho dự án Backend (`MiniSupermarket.API`):
-1. `Microsoft.EntityFrameworkCore.SqlServer` - Trình điều khiển giao tiếp hạ tầng SQL Server.
-2. `Microsoft.EntityFrameworkCore.Tools` - Cung cấp bộ lệnh quản trị cơ sở dữ liệu trong PMC.
-3. `Microsoft.EntityFrameworkCore.Design` - Hỗ trợ môi trường sinh mã tự động cấu trúc bảng CSDL.
+#### Bước 1: Kiểm tra kết nối SQL Server
 
-#### Bước 2: Khai báo kết nối hệ thống phòng máy (`appsettings.json`)
-Sử dụng tài khoản quản trị hệ thống cao cấp `sa` với mật khẩu được thiết lập lại đồng bộ `123456` tại phòng thực hành:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=.;Database=TaVanThang_MiniSupermarketDb;User Id=sa;Password=123456;MultipleActiveResultSets=true;TrustServerCertificate=True"
-}
-```
+1. Mở phần mềm **SQL Server Management Studio (SSMS)**.
 
-#### Bước 3: Đăng ký dịch vụ lõi (`Program.cs`)
-Tiêm phụ thuộc cấu hình kết nối ứng dụng thông qua dịch vụ hệ thống:
-```csharp
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<SupermarketDbContext>(options =>
-    options.UseSqlServer(connectionString));
-```
+2. Kết nối đến SQL Server bằng tài khoản được cấu hình trên máy thực hành.
 
-#### Bước 4: Đồng bộ hóa cơ sở dữ liệu (EF Core Migrations)
-Khởi chạy thành công bộ mã tạo dựng cơ sở dữ liệu trong cửa sổ *Package Manager Console*:
-1. **Lệnh tạo ánh xạ cấu trúc hình thể:** 
-   ```powershell
-   Add-Migration InitialCreateDatabase1
-   ```
-2. **Lệnh áp dụng thực tế:** 
-   ```powershell
-   Update-Database
-   ```
-   *Kết quả thực thi:* Hệ thống biên dịch thành công và báo trạng thái **`Done.`**. Hệ quản trị SQL Server Management Studio (SSMS) tự động khởi tạo cơ sở dữ liệu `TaVanThang_MiniSupermarketDb` với đầy đủ ràng buộc khóa chính, khóa ngoại của hai bảng dữ liệu `Categories`, `Products`, cùng dữ liệu mồi mặc định (5 nhóm hàng).
+3. Kiểm tra cơ sở dữ liệu `TaVanThang_MiniSupermarketDb`.
 
-#### Bước 5: Viết bộ điều khiển API bất đồng bộ (`CategoriesController.cs`)
-Xóa bỏ hoàn toàn lớp dữ liệu bộ nhớ tạm cứng thời gian trước. Chuyển đổi sang gọi dữ liệu qua thực thể `_context` bằng kỹ thuật xử lý đa luồng độc lập như `ToListAsync()`, `FindAsync(id)`, và `SaveChangesAsync()` để ứng dụng chạy mượt mà, tối ưu tài nguyên phần cứng.
+4. Đảm bảo cơ sở dữ liệu chứa các bảng:
+   - `Categories`: Quản lý nhóm hàng.
+   - `Products`: Quản lý sản phẩm.
+   - `__EFMigrationsHistory`: Lưu lịch sử Migration.
+
+5. Kiểm tra bảng `Categories` có 5 nhóm hàng mẫu được khởi tạo bằng Data Seeding.
+
+#### Bước 2: Chạy Entity Framework Core Migrations
+
+1. Mở Solution bằng **Visual Studio 2022**.
+
+2. Nhấp chuột phải vào project `MiniSupermarket.API`, chọn **Set as Startup Project**.
+
+3. Kiểm tra chuỗi kết nối `DefaultConnection` trong file `appsettings.json`, đảm bảo trỏ đến SQL Server và cơ sở dữ liệu của dự án.
+
+4. Mở **Tools → NuGet Package Manager → Package Manager Console**.
+
+5. Chọn **Default project:** `MiniSupermarket.API`.
+
+6. Nếu chưa tạo Migration, thực hiện:
+
+   `Add-Migration InitialCreateDatabase1`
+
+7. Áp dụng Migration vào SQL Server:
+
+   `Update-Database`
+
+8. Kiểm tra thông báo `Done.` và xác nhận các bảng được tạo trong SSMS.
+
+**Lưu ý:** Nếu Migration đã tồn tại thì không cần chạy lại lệnh Add-Migration. Chỉ chạy Update-Database khi còn Migration chưa được áp dụng.
+
+#### Bước 3: Chạy phía Backend (Web API)
+
+1. Nhấp chuột phải vào project `MiniSupermarket.API` chọn **Set as Startup Project**.
+
+2. Nhấn **F5** để chạy Web API.
+
+3. Trình duyệt sẽ mở giao diện **Swagger UI**.
+
+4. Đăng nhập thông qua `POST /api/auth/login` để lấy JWT Token nếu API đang được bảo vệ bằng `[Authorize]`.
+
+5. Kiểm thử các phương thức API kết nối SQL Server:
+
+   - `GET /api/categories`: Lấy danh sách nhóm hàng.
+   - `GET /api/categories/{id}`: Xem chi tiết nhóm hàng.
+   - `GET /api/categories/search?keyword=...`: Tìm kiếm nhóm hàng.
+   - `POST /api/categories`: Thêm nhóm hàng mới.
+   - `PUT /api/categories/{id}`: Cập nhật nhóm hàng.
+   - `DELETE /api/categories/{id}`: Xóa nhóm hàng.
+
+6. Kiểm tra dữ liệu trả về từ SQL Server, đặc biệt là 5 nhóm hàng mẫu đã được thêm bằng Data Seeding.
+
+7. Thực hiện thêm mới một nhóm hàng và mở SSMS để xác nhận dữ liệu đã được lưu xuống bảng `Categories`.
+
+#### Bước 4: Chạy phía Frontend (WinForms Client)
+
+1. Đảm bảo cổng (Port) trong `ApiClientService` hoặc `HttpClient` của WinForms trùng với cổng `https://localhost:XXXXX` của Web API.
+
+2. Nhấp chuột phải vào project `MiniSupermarket.WinForms`, chọn **Debug → Start New Instance**.
+
+3. Đăng nhập bằng tài khoản được cấu hình ở Buổi 2.
+
+4. Sau khi đăng nhập thành công, hệ thống chuyển sang giao diện `FormCategoryManagement`.
+
+5. Thử nghiệm các chức năng:
+   - **Tải danh sách:** Lấy dữ liệu nhóm hàng từ SQL Server.
+   - **Thêm mới:** Thêm nhóm hàng và lưu vào cơ sở dữ liệu.
+   - **Sửa:** Cập nhật thông tin nhóm hàng.
+   - **Xóa:** Xóa nhóm hàng khỏi cơ sở dữ liệu.
+   - **Tìm kiếm:** Tìm nhóm hàng theo tên.
+
+6. Mở SSMS để đối chiếu dữ liệu sau mỗi thao tác.
+
+#### Bước 5: Kiểm thử tính lưu trữ lâu dài của dữ liệu
+
+1. Khởi chạy Backend và WinForms Client.
+
+2. Thêm một nhóm hàng mới, ví dụ: **Đồ dùng gia đình**.
+
+3. Kiểm tra nhóm hàng vừa thêm xuất hiện trên DataGridView.
+
+4. Tắt cả ứng dụng WinForms và Web API.
+
+5. Khởi động lại Backend và WinForms.
+
+6. Nhấn **Tải danh sách** để kiểm tra dữ liệu.
+
+**Kết quả mong đợi:** Nhóm hàng vừa thêm vẫn tồn tại trong SQL Server và hiển thị trên WinForms sau khi khởi động lại ứng dụng.
+
+Điều này chứng minh hệ thống đã chuyển từ lưu trữ tạm thời In-Memory sang lưu trữ lâu dài bằng Microsoft SQL Server.
 
 ---
 
-### 🚀 4. HƯỚNG DẪN KHỞI CHẠY VÀ KIỂM THỬ DỰ ÁN
+### 👨‍💻 5. Tác giả
 
-#### Bước 1: Khởi động và chạy phía Backend (Web API)
-1. Mở Solution bằng phần mềm **Visual Studio 2022**.
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.API`** chọn **Set as Startup Project**.
-3. Nhấn phím **F5** để chạy dịch vụ. Trình duyệt mặc định tự động mở ra giao diện trực quan **Swagger UI**.
-4. Thực hiện thử nghiệm tính năng `GET /api/Categories`, hệ thống trả về mã trạng thái `200 OK` cùng chuỗi nội dung dữ liệu JSON chứa đúng 5 thực thể danh mục mẫu được gọi từ SQL Server lên.
-
-#### Bước 2: Khởi động và chạy phía Frontend (WinForms Client)
-1. Cấu hình cổng kết nối (Port) HttpClient ở tầng WinForms trùng khớp với Port đang chạy thực tế của Web API (`https://localhost:XXXXX`).
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.WinForms`** ➔ Chọn **Debug** ➔ **Start New Instance**.
-3. Trải nghiệm thao tác trên giao diện: Click nút **Tải danh sách**, thực hiện nghiệp vụ **Thêm mới**, **Sửa đổi thông tin**, và **Xóa** trực tiếp. Dữ liệu thay đổi cập nhật đồng bộ tức thì, chính xác xuống bảng cơ sở dữ liệu bên phần mềm Microsoft SQL Server Management Studio (SSMS).
+- **Họ tên sinh viên:** Tạ Văn Thắng
+- **Mã sinh viên:** 2124110256
+- **Lớp học phần:** CCQ2411D
+- **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
