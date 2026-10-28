@@ -1,96 +1,246 @@
-# 🛒 DỰ ÁN HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
+# 🛒 MINISUPERMARKET SYSTEM
 
-## 👤 THÔNG TIN SINH VIÊN BÁO CÁO
-* **Họ và tên:** Tạ Văn Thắng
-* **Mã sinh viên:** 2124110256
-* **Lớp học phần:** CCQ2411D
-* **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
+## 📅 BUỔI 5: ADO.NET NÂNG CAO, STORED PROCEDURE VÀ GIAO DỊCH THANH TOÁN POS (SQLTRANSACTION)
 
----
+### 📂 3. Cấu trúc Thư mục Dự án
 
-## 📅 BÁO CÁO CHI TIẾT - BUỔI 3: TÍCH HỢP SQL SERVER VÀ ENTITY FRAMEWORK CORE CODE-FIRST
-
-### 1. MỤC TIÊU VÀ BỐI CẢNH THỰC TẾ
-* **Mục tiêu:** 
-  * Thay thế hoàn toàn cơ chế lưu tạm trên RAM (In-Memory) ở Buổi 1 và Buổi 2 bằng hệ quản trị cơ sở dữ liệu quan hệ **Microsoft SQL Server**.
-  * Làm chủ kỹ thuật **Entity Framework Core (EF Core) Code-First**: Định nghĩa cấu trúc lớp C# (Entities) trước rồi tự động sinh cấu trúc bảng tương ứng trong CSDL.
-  * Nắm vững các công cụ dòng lệnh **EF Core Migrations** và tối ưu hiệu năng truy vấn dữ liệu bất đồng bộ bằng **LINQ (async/await)**.
-* **Bối cảnh thực tế đồ án:** Khi nhân viên thu ngân thực hiện các thao tác thêm mới, sửa, hoặc xóa dữ liệu nhóm hàng (Category) và sản phẩm (Product) trên giao diện desktop WinForms, toàn bộ dữ liệu phải được lưu trữ vĩnh viễn trong CSDL `TaVanThang_MiniSupermarketDb`. Khi tắt ứng dụng hoặc khởi động lại API, các bản ghi dữ liệu vẫn được đảm bảo toàn vẹn.
-
----
-
-### 📂 2. CẤU TRÚC THƯ MỤC TOÀN CỤC CỦA DỰ ÁN
 ```text
-MiniSupermarketSystem/
+MiniSuperMarket_TaVanThang/
 │
-├── MiniSupermarket.API/          # Dự án Web API (Backend)
-│   ├── Controllers/              
-│   │   └── CategoriesController.cs # Xử lý API CRUD kết nối trực tiếp với DB (async/await)
-│   ├── Data/                     
-│   │   └── SupermarketDbContext.cs # Quản lý kết nối Database và cấu hình nạp sẵn dữ liệu mồi
-│   ├── Migrations/               # Thư mục tự động sinh ra khi thực thi lệnh Migration quản lý DB
-│   ├── Models/                   
-│   │   ├── Category.cs           # Thực thể Nhóm hàng (Data Annotations & Quan hệ 1-N)
-│   │   └── Product.cs            # Thực thể Sản phẩm (Cấu hình kiểu dữ liệu & Khóa ngoại)
-│   ├── appsettings.json          # Cấu hình Chuỗi kết nối kết nối (ConnectionStrings - sa/123456)
-│   └── Program.cs                # Đăng ký DbContext vào kiến trúc Dependency Injection (DI)
+├── MiniSupermarket.API/               # Dự án Web API (Backend)
+│   ├── Controllers/
+│   │   ├── AuthController.cs           # Xác thực và phân quyền JWT
+│   │   ├── CategoriesController.cs     # API quản lý danh mục
+│   │   ├── ProductsController.cs       # API quản lý sản phẩm
+│   │   ├── CustomersController.cs      # API quản lý khách hàng
+│   │   ├── UsersController.cs          # API quản lý tài khoản
+│   │   ├── RolesController.cs          # API quản lý vai trò
+│   │   ├── AdoProductController.cs     # Tra cứu Barcode bằng ADO.NET
+│   │   ├── ReportsController.cs        # Báo cáo doanh thu bằng Stored Procedure
+│   │   ├── OrdersController.cs         # API quản lý hóa đơn
+│   │   └── CheckoutController.cs       # Thanh toán POS bằng SqlTransaction
+│   │
+│   ├── Data/
+│   │   ├── SupermarketDbContext.cs     # Quản lý kết nối EF Core
+│   │   └── UserStore.cs                # Thành phần lưu trữ người dùng
+│   │
+│   ├── Models/
+│   │   ├── Category.cs                 # Thực thể nhóm hàng
+│   │   ├── Product.cs                  # Thực thể sản phẩm
+│   │   ├── CheckoutDtos.cs             # DTO giỏ hàng và thanh toán
+│   │   └── CashierRevenueDto.cs        # DTO thống kê doanh thu thu ngân
+│   │
+│   ├── Migrations/                     # Quản lý phiên bản CSDL
+│   ├── appsettings.json                # Cấu hình SQL Server và JWT
+│   └── Program.cs                      # Cấu hình dịch vụ và Middleware
 │
-└── MiniSupermarket.WinForms/     # Dự án Windows Forms (Frontend Client)
-    └── FormCategoryManagement.cs # Giao diện đồ họa tương tác và thực thi gọi API Client
+├── MiniSupermarket.WinForms/           # Dự án Windows Forms (Frontend)
+│   ├── FormLogin.cs                    # Giao diện đăng nhập
+│   ├── FormMainShell.cs                # Giao diện Sidebar và Workspace
+│   ├── FormCategoryManagement.cs       # Quản lý danh mục
+│   ├── FormProductManagement.cs        # Quản lý sản phẩm và tồn kho
+│   ├── FormCustomerManagement.cs       # Quản lý khách hàng
+│   ├── FormPOS.cs                       # Bán hàng, giỏ hàng và thanh toán
+│   ├── FormQuickReport.cs              # Hiển thị báo cáo doanh thu
+│   ├── FormUserManagement.cs           # Quản lý tài khoản
+│   ├── FormRoleManagement.cs           # Quản lý vai trò
+│   ├── SessionManager.cs               # Quản lý phiên đăng nhập JWT
+│   ├── Services/
+│   │   └── ApiClientService.cs         # Giao tiếp Backend Web API
+│   └── Program.cs                      # Khởi chạy ứng dụng
+│
+└── MiniSuperMarket_TaVanThang.sln      # Solution Visual Studio 2022
 ```
+
+**Lưu ý:** Cấu trúc trên kết hợp dự án Buổi 4 với các thành phần mới được yêu cầu trong tài liệu Buổi 5. Các file `AdoProductController.cs`, `CheckoutDtos.cs` và `CashierRevenueDto.cs` cần được đối chiếu với mã nguồn sau khi thực hành.
 
 ---
 
-### 🛠️ 3. NỘI DUNG CÁC BƯỚC ĐÃ THỰC HIỆN
+### 🚀 4. Hướng dẫn Chạy và Kiểm thử Dự án
 
-#### Bước 1: Thiết lập thư viện nền tảng (NuGet Packages)
-Đã cài đặt thành công 3 gói thư viện nền tảng dành cho dự án Backend (`MiniSupermarket.API`):
-1. `Microsoft.EntityFrameworkCore.SqlServer` - Trình điều khiển giao tiếp hạ tầng SQL Server.
-2. `Microsoft.EntityFrameworkCore.Tools` - Cung cấp bộ lệnh quản trị cơ sở dữ liệu trong PMC.
-3. `Microsoft.EntityFrameworkCore.Design` - Hỗ trợ môi trường sinh mã tự động cấu trúc bảng CSDL.
+#### Bước 1: Kiểm tra SQL Server và ADO.NET
 
-#### Bước 2: Khai báo kết nối hệ thống phòng máy (`appsettings.json`)
-Sử dụng tài khoản quản trị hệ thống cao cấp `sa` với mật khẩu được thiết lập lại đồng bộ `123456` tại phòng thực hành:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=.;Database=TaVanThang_MiniSupermarketDb;User Id=sa;Password=123456;MultipleActiveResultSets=true;TrustServerCertificate=True"
-}
-```
+1. Mở **SQL Server Management Studio (SSMS)**.
 
-#### Bước 3: Đăng ký dịch vụ lõi (`Program.cs`)
-Tiêm phụ thuộc cấu hình kết nối ứng dụng thông qua dịch vụ hệ thống:
-```csharp
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<SupermarketDbContext>(options =>
-    options.UseSqlServer(connectionString));
-```
+2. Kết nối đến SQL Server đang sử dụng trong dự án.
 
-#### Bước 4: Đồng bộ hóa cơ sở dữ liệu (EF Core Migrations)
-Khởi chạy thành công bộ mã tạo dựng cơ sở dữ liệu trong cửa sổ *Package Manager Console*:
-1. **Lệnh tạo ánh xạ cấu trúc hình thể:** 
-   ```powershell
-   Add-Migration InitialCreateDatabase1
-   ```
-2. **Lệnh áp dụng thực tế:** 
-   ```powershell
-   Update-Database
-   ```
-   *Kết quả thực thi:* Hệ thống biên dịch thành công và báo trạng thái **`Done.`**. Hệ quản trị SQL Server Management Studio (SSMS) tự động khởi tạo cơ sở dữ liệu `TaVanThang_MiniSupermarketDb` với đầy đủ ràng buộc khóa chính, khóa ngoại của hai bảng dữ liệu `Categories`, `Products`, cùng dữ liệu mồi mặc định (5 nhóm hàng).
+3. Chọn cơ sở dữ liệu `TaVanThang_MiniSupermarketDb`.
 
-#### Bước 5: Viết bộ điều khiển API bất đồng bộ (`CategoriesController.cs`)
-Xóa bỏ hoàn toàn lớp dữ liệu bộ nhớ tạm cứng thời gian trước. Chuyển đổi sang gọi dữ liệu qua thực thể `_context` bằng kỹ thuật xử lý đa luồng độc lập như `ToListAsync()`, `FindAsync(id)`, và `SaveChangesAsync()` để ứng dụng chạy mượt mà, tối ưu tài nguyên phần cứng.
+4. Kiểm tra các bảng dữ liệu phục vụ nghiệp vụ:
+   - `Products`: Thông tin sản phẩm và tồn kho.
+   - `Categories`: Danh mục nhóm hàng.
+   - `Customers`: Thông tin khách hàng và điểm tích lũy.
+   - `Orders`: Thông tin hóa đơn bán hàng.
+   - `OrderDetails`: Chi tiết sản phẩm trong hóa đơn.
 
----
+5. Kiểm tra chuỗi kết nối `DefaultConnection` trong `appsettings.json` trỏ đúng đến cơ sở dữ liệu.
 
-### 🚀 4. HƯỚNG DẪN KHỞI CHẠY VÀ KIỂM THỬ DỰ ÁN
+6. Đảm bảo dự án Backend đã cài đặt thư viện `Microsoft.Data.SqlClient`.
 
-#### Bước 1: Khởi động và chạy phía Backend (Web API)
-1. Mở Solution bằng phần mềm **Visual Studio 2022**.
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.API`** chọn **Set as Startup Project**.
-3. Nhấn phím **F5** để chạy dịch vụ. Trình duyệt mặc định tự động mở ra giao diện trực quan **Swagger UI**.
-4. Thực hiện thử nghiệm tính năng `GET /api/Categories`, hệ thống trả về mã trạng thái `200 OK` cùng chuỗi nội dung dữ liệu JSON chứa đúng 5 thực thể danh mục mẫu được gọi từ SQL Server lên.
+7. Kiểm tra các thành phần ADO.NET gồm `SqlConnection`, `SqlCommand`, `SqlParameter`, `SqlDataReader`, `SqlDataAdapter` và `DataTable`.
 
-#### Bước 2: Khởi động và chạy phía Frontend (WinForms Client)
-1. Cấu hình cổng kết nối (Port) HttpClient ở tầng WinForms trùng khớp với Port đang chạy thực tế của Web API (`https://localhost:XXXXX`).
-2. Nhấp chuột phải vào dự án **`MiniSupermarket.WinForms`** ➔ Chọn **Debug** ➔ **Start New Instance**.
-3. Trải nghiệm thao tác trên giao diện: Click nút **Tải danh sách**, thực hiện nghiệp vụ **Thêm mới**, **Sửa đổi thông tin**, và **Xóa** trực tiếp. Dữ liệu thay đổi cập nhật đồng bộ tức thì, chính xác xuống bảng cơ sở dữ liệu bên phần mềm Microsoft SQL Server Management Studio (SSMS).
+#### Bước 2: Chạy phía Backend (Web API)
+
+1. Mở Solution `MiniSuperMarket_TaVanThang.sln` bằng **Visual Studio 2022**.
+
+2. Nhấp chuột phải vào project `MiniSupermarket.API`, chọn **Set as Startup Project**.
+
+3. Nhấn **F5** để chạy Web API.
+
+4. Trình duyệt mở giao diện **Swagger UI** nếu dự án đã cấu hình Swagger.
+
+5. Kiểm tra các API ADO.NET, báo cáo doanh thu và thanh toán POS.
+
+6. Nếu endpoint yêu cầu JWT Token, thực hiện đăng nhập và cấp quyền trước khi gọi API.
+
+#### Bước 3: Kiểm thử tra cứu sản phẩm bằng Barcode
+
+Trên Swagger UI, tìm đến `AdoProductController`.
+
+Thực hiện kiểm thử:
+
+**Trường hợp 1: Tra cứu mã vạch hợp lệ**
+
+Gọi endpoint:
+
+`GET /api/ado-products/barcode/893456789001`
+
+Kết quả mong đợi:
+
+- HTTP `200 OK`.
+- Trả về mã sản phẩm, mã vạch, tên sản phẩm, giá bán và số lượng tồn kho.
+- Dữ liệu được đọc trực tiếp từ SQL Server bằng `SqlDataReader`.
+
+**Trường hợp 2: Tra cứu mã vạch không tồn tại**
+
+Gọi endpoint:
+
+`GET /api/ado-products/barcode/999999999999`
+
+Kết quả mong đợi:
+
+- HTTP `404 Not Found`.
+- Hiển thị thông báo không tìm thấy sản phẩm.
+
+**Trường hợp 3: Tải danh sách bằng DataTable**
+
+Gọi endpoint:
+
+`GET /api/ado-products/disconnected-cache`
+
+Kết quả mong đợi:
+
+- HTTP `200 OK`.
+- Trả về danh sách sản phẩm và tổng số bản ghi đã tải.
+- Sử dụng `SqlDataAdapter` kết hợp `DataTable` để đọc dữ liệu theo mô hình Disconnected Mode.
+
+#### Bước 4: Tạo và kiểm thử Stored Procedure
+
+1. Mở **SSMS**, chọn đúng cơ sở dữ liệu `TaVanThang_MiniSupermarketDb`.
+
+2. Mở cửa sổ **New Query**.
+
+3. Tạo Stored Procedure có tên:
+
+   `sp_GetRevenueByCashier`
+
+4. Stored Procedure thực hiện thống kê:
+   - Tên tài khoản thu ngân.
+   - Tổng số hóa đơn đã xử lý.
+   - Tổng doanh thu.
+   - Tổng điểm thưởng đã cấp cho khách hàng.
+
+5. Thực thi Stored Procedure bằng lệnh:
+
+   `EXEC sp_GetRevenueByCashier;`
+
+6. Kiểm tra bảng kết quả doanh thu theo từng thu ngân.
+
+7. Quay lại Swagger UI và gọi endpoint:
+
+   `GET /api/reports/revenue-by-cashier`
+
+8. Kiểm tra kết quả JSON trả về gồm tổng số thu ngân, tổng doanh thu và danh sách thống kê.
+
+**Kết quả mong đợi:** API trả về `200 OK` với dữ liệu thống kê khớp kết quả Stored Procedure trên SQL Server.
+
+#### Bước 5: Kiểm thử giao dịch SqlTransaction theo chuẩn ACID
+
+1. Kiểm tra API thanh toán sử dụng `SqlTransaction`.
+
+2. Xác nhận các thao tác ghi dữ liệu được thực hiện trong cùng một Transaction:
+   - Tạo hóa đơn vào bảng `Orders`.
+   - Thêm chi tiết hóa đơn vào `OrderDetails`.
+   - Trừ số lượng tồn kho trong bảng `Products`.
+   - Cộng điểm tích lũy vào bảng `Customers`.
+
+3. Kiểm tra cơ chế `BeginTransaction()` khi bắt đầu thanh toán.
+
+4. Kiểm tra `Commit()` khi toàn bộ các thao tác thành công.
+
+5. Kiểm tra `Rollback()` khi một thao tác phát sinh lỗi.
+
+6. Đảm bảo các câu lệnh SQL trong cùng phiên giao dịch đều được gắn với Transaction tương ứng.
+
+#### Bước 6: Kiểm thử API Thanh toán POS
+
+Truy cập Swagger UI và chọn endpoint:
+
+`POST /api/checkout`
+
+**Trường hợp 1: Thanh toán thành công**
+
+Nhập dữ liệu giỏ hàng hợp lệ, ví dụ:
+
+- Thu ngân: `cashier01`.
+- Khách hàng: `CustomerId = 1`.
+- Sản phẩm ID 1: Số lượng 2.
+- Sản phẩm ID 5: Số lượng 3.
+
+Nhấn **Execute** để thực hiện thanh toán.
+
+Kết quả mong đợi:
+
+- HTTP `200 OK`.
+- Tạo mới hóa đơn thành công.
+- Sinh mã hóa đơn và OrderId.
+- Lưu chi tiết sản phẩm.
+- Trừ tồn kho đúng số lượng.
+- Cộng điểm tích lũy cho khách hàng.
+- Transaction được Commit thành công.
+
+**Trường hợp 2: Thanh toán vượt số lượng tồn kho**
+
+Thực hiện yêu cầu mua sản phẩm với số lượng lớn hơn tồn kho thực tế, ví dụ sản phẩm ID 2 với số lượng 999.
+
+Kết quả mong đợi:
+
+- HTTP `400 Bad Request`.
+- Hiển thị thông báo sản phẩm không đủ tồn kho.
+- Transaction được Rollback.
+- Không tạo hóa đơn mới.
+- Không lưu chi tiết hóa đơn.
+- Không trừ tồn kho.
+- Không cộng điểm thưởng.
+
+#### Bước 7: Đối soát dữ liệu trên SQL Server
+
+1. Mở **SQL Server Management Studio**.
+
+2. Kiểm tra bảng `Orders` sau khi thanh toán thành công.
+
+3. Kiểm tra `OrderDetails` để xác nhận danh sách sản phẩm trong hóa đơn.
+
+4. Kiểm tra `Products` để đối chiếu số lượng tồn kho trước và sau thanh toán.
+
+5. Kiểm tra `Customers` để đối chiếu điểm tích lũy.
+
+6. Thực hiện kiểm thử thanh toán thất bại do vượt tồn kho.
+
+7. Xác nhận các bảng không phát sinh bản ghi không hợp lệ hoặc thay đổi dữ liệu ngoài mong muốn sau Rollback.
+
+#### Bước 8: Chạy phía Frontend (WinForms Client)
+
+1. Đảm bảo Backend Web API đang hoạt động.
+
+2. Kiểm tra địa chỉ API trong `Services/ApiClientService.cs
