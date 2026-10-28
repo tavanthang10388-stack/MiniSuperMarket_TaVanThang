@@ -1,51 +1,80 @@
-# 🛒 HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
-> **Môn học:** Lập trình Ứng dụng .NET Core (Mã môn: 229162)  
-> **Buổi thực hành:** Buổi 1 - Xây dựng Web API quản lý danh mục và kết nối WinForms Client (CRUD)
+# 🛒 MINISUPERMARKET SYSTEM
+## 📅 BUỔI 2: BẢO MẬT VÀ PHÂN QUYỀN JWT CHO WEB API
 
----
-## 🏗️ 1. Mô hình Kiến trúc Hệ thống (Client - Server)
-Dự án được xây dựng theo mô hình phân tầng hiện đại, tách biệt hoàn toàn giữa Backend và Frontend:
-* **`MiniSupermarket.API` (Backend):** Dự án ASP.NET Core Web API chịu trách nhiệm xử lý logic nghiệp vụ, quản lý dữ liệu và cung cấp các RESTful API chuẩn hóa.
-* **`MiniSupermarket.WinForms` (Frontend Client):** Ứng dụng Windows Forms đóng vai trò là máy trạm POS tại quầy, sử dụng `HttpClient` để gọi dữ liệu từ API qua mạng và hiển thị trực quan lên `DataGridView`.
----
-## 🛠️ 2. Công nghệ Sử dụng
-* **Ngôn ngữ:** C# (.NET 8.0)
-* **Backend:** ASP.NET Core Web API, Controllers, In-Memory Data, LINQ
-* **Frontend:** Windows Forms (.NET 8.0), `System.Net.Http.Json`
-* **Công cụ kiểm thử:** Swagger UI
---
-## 📂 3. Cấu trúc Solution
+### 📂 3. Cấu trúc Thư mục Dự án
+
 ```text
 MiniSupermarketSystem/
 │
-├── MiniSupermarket.API/          # Dự án Web API (Backend)
-│   ├── Controllers/              # Chứa CategoriesController (CRUD & Search)
-│   ├── Models/                   # Chứa lớp thực thể Category.cs
-│   └── Program.cs                # Cấu hình dịch vụ và Middleware
+├── MiniSupermarket.API/           # Dự án Web API (Backend)
+│   ├── Controllers/
+│   │   ├── AuthController.cs      # Xử lý đăng nhập và cấp JWT Token
+│   │   └── CategoriesController.cs # CRUD, tìm kiếm và phân quyền API
+│   ├── Models/
+│   │   └── Category.cs           # Lớp thực thể nhóm hàng
+│   ├── appsettings.json          # Cấu hình khóa bí mật JWT
+│   └── Program.cs                # Cấu hình JWT Authentication và Middleware
 │
-└── MiniSupermarket.WinForms/     # Dự án Windows Forms (Frontend Client)
-    └── FormCategoryManagement.cs # Giao diện quản lý danh mục CRUD
+└── MiniSupermarket.WinForms/      # Dự án Windows Forms (Frontend Client)
+    ├── FormLogin.cs              # Giao diện đăng nhập hệ thống
+    ├── FormCategoryManagement.cs # Giao diện quản lý danh mục
+    ├── SessionManager.cs         # Lưu JWT Token và quyền người dùng
+    ├── ApiClientService.cs       # Gọi API kèm Bearer Token
+    └── Program.cs                # Cấu hình khởi chạy FormLogin
+```
 
+---
 
-🚀 4. Hướng dẫn Chạy và Kiểm thử Dự án
-Bước 1: Chạy phía Backend (Web API)
-Mở Solution bằng Visual Studio 2022.
+### 🚀 4. Hướng dẫn Chạy và Kiểm thử Dự án
 
+#### Bước 1: Chạy phía Backend (Web API)
 
-Nhấp chuột phải vào project MiniSupermarket.API chọn Set as Startup Project.
+1. Mở Solution bằng **Visual Studio 2022**.
 
+2. Nhấp chuột phải vào project `MiniSupermarket.API`, chọn **Set as Startup Project**.
 
-Nhấn F5 để chạy. Trình duyệt sẽ tự động mở giao diện Swagger UI để kiểm tra các phương thức GET, POST, PUT, DELETE.
+3. Nhấn **F5** để chạy Web API. Trình duyệt sẽ mở giao diện **Swagger UI**.
 
+4. Kiểm tra endpoint `POST /api/auth/login` bằng tài khoản mẫu:
+   - **Admin:** `admin / 123456`
+   - **Cashier:** `cashier / 123456`
 
-Bước 2: Chạy phía Frontend (WinForms Client)
-Đảm bảo cổng (Port) trong ApiClientService hoặc HttpClient của WinForms khớp với cổng https://localhost:XXXXX của Web API đang chạy.
+5. Khi đăng nhập thành công, hệ thống trả về JWT Token và vai trò người dùng.
 
-Nhấp chuột phải vào project MiniSupermarket.WinForms chọn Debug -> Start new instance.
+6. Sử dụng JWT Token để kiểm thử các endpoint được bảo vệ bằng `[Authorize]`.
 
-Thử nghiệm các chức năng: Tải danh sách, Thêm mới, Sửa, Xóa và Tìm kiếm nhóm hàng.
+#### Bước 2: Kiểm thử Bảo mật và Phân quyền JWT
 
-👨‍💻 5. Tác giả
-Họ tên sinh viên: Tạ Văn Thắng
-Mã sinh viên: 2124110256
-Lớp học phần: CCQ2411D
+Thực hiện các trường hợp sau trên Swagger UI:
+
+- **Chưa đăng nhập:** Gọi `GET /api/categories` không có Token → `401 Unauthorized`.
+- **Đăng nhập Admin:** Truy cập `GET /api/categories/admin-dashboard` → `200 OK`.
+- **Đăng nhập Cashier:** Truy cập `GET /api/categories/staff-pos` → `200 OK`.
+- **Cashier truy cập chức năng Admin:** Gọi `GET /api/categories/admin-dashboard` → `403 Forbidden`.
+- **Đăng nhập sai mật khẩu:** API trả về `401 Unauthorized`.
+
+Các mã trạng thái trên là kết quả mong đợi khi cấu hình xác thực và phân quyền đúng theo tài liệu thực hành.
+
+#### Bước 3: Chạy phía Frontend (WinForms Client)
+
+1. Đảm bảo cổng (Port) trong `ApiClientService` hoặc `HttpClient` của WinForms khớp với cổng `https://localhost:XXXXX` của Web API đang chạy.
+
+2. Nhấp chuột phải vào project `MiniSupermarket.WinForms`, chọn **Debug → Start New Instance**.
+
+3. Màn hình **FormLogin** xuất hiện, yêu cầu nhập tài khoản và mật khẩu.
+
+4. Đăng nhập bằng tài khoản Admin hoặc Cashier.
+
+5. Khi đăng nhập thành công, hệ thống lưu JWT Token vào `SessionManager` và chuyển đến giao diện `FormCategoryManagement`.
+
+6. Thử nghiệm các chức năng **Tải danh sách, Thêm mới, Sửa, Xóa và Tìm kiếm nhóm hàng**. Các yêu cầu gửi đến API được bảo vệ phải kèm Bearer Token hợp lệ.
+
+7. Kiểm tra việc phân quyền theo vai trò và thông báo lỗi khi Token không hợp lệ hoặc hết hạn.
+
+---
+### 👨‍💻 5. Tác giả
+
+- **Họ tên sinh viên:** Tạ Văn Thắng
+- **Mã sinh viên:** 2124110256
+- **Lớp học phần:** CCQ2411D
+- **Học kỳ:**  Năm học 2026-2027
