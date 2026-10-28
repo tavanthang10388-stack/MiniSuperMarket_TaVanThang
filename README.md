@@ -243,4 +243,38 @@ Kết quả mong đợi:
 
 1. Đảm bảo Backend Web API đang hoạt động.
 
-2. Kiểm tra địa chỉ API trong `Services/ApiClientService.cs
+2. Kiểm tra địa chỉ API trong `Services/ApiClientService.cs` khớp với cổng `https://localhost:XXXXX`.
+
+3. Nhấp chuột phải vào project `MiniSupermarket.WinForms`, chọn **Debug → Start New Instance**.
+
+4. Đăng nhập bằng tài khoản có quyền sử dụng POS.
+
+5. Trên `FormMainShell`, chọn chức năng **Bán hàng (POS)**.
+
+6. Kiểm tra giao diện `FormPOS`:
+   - Ô nhập hoặc quét mã Barcode.
+   - Danh sách sản phẩm trong giỏ hàng.
+   - Số lượng và đơn giá.
+   - Tổng tiền thanh toán.
+   - Thông tin khách hàng.
+   - Tiền khách đưa và tiền thừa.
+   - Nút Thanh toán.
+
+7. Thêm sản phẩm vào giỏ hàng và kiểm tra tổng tiền được tính chính xác.
+
+8. Thực hiện thanh toán khi giỏ hàng hợp lệ và Backend đã được tích hợp đúng endpoint.
+
+9. Kiểm tra thông báo kết quả, đồng thời đối chiếu hóa đơn và tồn kho trong SQL Server.
+
+10. Thử trường hợp sản phẩm hết hàng để kiểm tra thông báo lỗi và tính toàn vẹn dữ liệu.
+
+**Lưu ý:** Phần WinForms chỉ hoàn thành luồng thanh toán khi `FormPOS` gọi đúng endpoint và gửi dữ liệu theo DTO mà Backend yêu cầu.
+
+---
+
+### 👨‍💻 5. Tác giả
+
+- **Họ tên sinh viên:** Tạ Văn Thắng
+- **Mã sinh viên:** 2124110256
+- **Lớp học phần:** CCQ2411D
+- **Học kỳ:** Học kỳ 1 - Năm học 2026-2027
